@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1200</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile_F">
+    <property name="title">
+     <string>File (F)</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit_E">
+    <property name="title">
+     <string>Edit (E)</string>
+    </property>
+    <addaction name="actionSelect"/>
+   </widget>
+   <widget class="QMenu" name="menuTool_T">
+    <property name="title">
+     <string>Tool (T)</string>
+    </property>
+    <addaction name="actionFind"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp_H">
+    <property name="title">
+     <string>Help (H)</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile_F"/>
+   <addaction name="menuEdit_E"/>
+   <addaction name="menuTool_T"/>
+   <addaction name="menuHelp_H"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionEthercat_setting"/>
+   <addaction name="separator"/>
+   <addaction name="actionEthercat_scan"/>
+   <addaction name="actionEthercat_run"/>
+   <addaction name="actionEthercat_stop"/>
+   <addaction name="actionEthercat_exit"/>
+   <addaction name="separator"/>
+   <addaction name="actionEthercat_output"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(0, 122, 204);</string>
+   </property>
+  </widget>
+  <action name="actionEthercat_scan">
+   <property name="icon">
+    <iconset resource="res_icons.qrc">
+     <normaloff>:/image1/Resource/Icons/Refresh.png</normaloff>:/image1/Resource/Icons/Refresh.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ethercat_scan</string>
+   </property>
+   <property name="toolTip">
+    <string>Scan</string>
+   </property>
+  </action>
+  <action name="actionEthercat_run">
+   <property name="icon">
+    <iconset resource="res_icons.qrc">
+     <normaloff>:/image1/Resource/Icons/Play.png</normaloff>:/image1/Resource/Icons/Play.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ethercat_run</string>
+   </property>
+   <property name="toolTip">
+    <string>Run</string>
+   </property>
+  </action>
+  <action name="actionEthercat_stop">
+   <property name="icon">
+    <iconset resource="res_icons.qrc">
+     <normaloff>:/image1/Resource/Icons/Pause.png</normaloff>:/image1/Resource/Icons/Pause.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ethercat_stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionEthercat_setting">
+   <property name="icon">
+    <iconset resource="res_icons.qrc">
+     <normaloff>:/image1/Resource/Icons/Gears.png</normaloff>:/image1/Resource/Icons/Gears.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ethercat_setting</string>
+   </property>
+   <property name="toolTip">
+    <string>Setting</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionEthercat_output">
+   <property name="icon">
+    <iconset resource="res_icons.qrc">
+     <normaloff>:/image1/Resource/Icons/download.png</normaloff>:/image1/Resource/Icons/download.png</iconset>
+   </property>
+   <property name="text">
+    <string>Output</string>
+   </property>
+  </action>
+  <action name="actionSelect">
+   <property name="text">
+    <string>Select</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>Find</string>
+   </property>
+  </action>
+  <action name="actionEthercat_exit">
+   <property name="icon">
+    <iconset resource="res_icons.qrc">
+     <normaloff>:/image1/Resource/Icons/stop.png</normaloff>:/image1/Resource/Icons/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ethercat_Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="res_icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
