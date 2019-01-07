@@ -227,7 +227,7 @@ int MainFormView::Gcode_load(QString &fileName){
                 if(isCommentLine){//空的表示是注释行
                     Gcode_segment segment;//插入M代码，让行对应
                     segment.line = gp_t->getGodeQueue()->size();
-                    segment.data_xyz = QVector3D(0,0,0);//M代码位置无效
+                    segment.data_xyz = QVector3D(0,0,0);//注释的M代码位置无效
                     segment.Mcode = Gcode_segment::COMMENT_CODE;
                     gp_t->getGodeQueue()->enqueue(segment);
 

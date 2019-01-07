@@ -13,8 +13,8 @@ public:
         No_Mcode = -1,
         MotorTool_On = 100,
         MotorTool_Off = 101,
-        COMMENT_CODE = 1000,//注释行，保证行号对齐
-        EndParse_CODE = 1001//表示G代码解析完毕
+        COMMENT_CODE = -1000,//注释行，保证行号对齐
+        EndParse_CODE = -1001//表示G代码解析完毕
     }McodeDef_enum;
 
     QVector3D data_xyz;

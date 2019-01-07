@@ -312,10 +312,6 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
                     *(input_MotorStep_ptr+AXIS_4) = 0;
     //                STEP_BIT_SetFalse(*(input_ptr+step_setting),1<<step_AutoRun_start);//设置自动运行
                     break;
-                case Gcode_segment::COMMENT_CODE:
-                    break;
-                case Gcode_segment::EndParse_CODE:
-                    break;
                 default:
                     qDebug() << "Mcode:"<<m_Stepper_control.exec_block->Mcode;
                     break;
@@ -441,6 +437,11 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData){
 //    }
 //    calculate_forward(print_position);
 
+    if(userData == Gcode_segment::COMMENT_CODE || userData == Gcode_segment::EndParse_CODE){//如果是注释的Gcode，则为空
+        delete block_new;//避免内存泄漏
+        return Planner_EmptyBlock;//暂时将其定为EMPTY_BLOCK,即不运动
+    }
+
     //将target转化为角度坐标(反解)
     ARM_Motion_s arm_motion_target;
     arm_motion_target =  calculate_arm(target);
@@ -534,6 +535,7 @@ void My_MotorApp_Callback::GcodeSendThread_run(){
                          if(ret==Planner_EmptyBlock){//空的执行块
                              m_RenewST_ready = true;//重新获取新的执行块
                          }
+
                          m_sys_reset = false;
                      }
                  }
