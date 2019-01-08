@@ -317,9 +317,14 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
                     break;
                 }
 
+
                 m_McodeFlag = true;
 //                STEP_BIT_SetFalse(*(input_ptr+step_setting),1<<step_AutoRun_stop);//从站中stop判断在前
                 STEP_BIT_SetFalse(*(input_ptr+step_setting),1<<step_AutoRun_start);//设置自动运行
+
+//                qDebug() << "Mcode:"<<m_Stepper_control.exec_block->Mcode;
+//                qDebug() << *(input_MotorStep_ptr+AXIS_4);
+//                qDebug() << *(input_ptr+step_setting);
             }
 
 
@@ -415,6 +420,8 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData){
 
     Stepper_block* block_new = new Stepper_block();
     block_new->step_event_count = 0;
+
+//    qDebug() << "userdata:"<<userData;
 
 //    if(userData > Gcode_segment::No_Mcode){
 //        for(int idx = 0;idx < AXIS_N;idx++){
@@ -525,6 +532,7 @@ void My_MotorApp_Callback::GcodeSendThread_run(){
                          QVector3D data = segment.data_xyz;
                          int Mcode = segment.Mcode;
 //                         qDebug() << data;
+//                         qDebug() << "Mcode:"<<Mcode;
 
                          emit Gcode_lineChange(segment.line);//发射Gcode行号改变的信号
 

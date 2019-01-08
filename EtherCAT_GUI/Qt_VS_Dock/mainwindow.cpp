@@ -131,6 +131,7 @@ void MainWindow::on_actionEthercat_scan_triggered()
           ui->actionEthercat_run->setEnabled(true);
           ui->actionEthercat_stop->setEnabled(true);
           ui->actionEthercat_exit->setEnabled(true);
+          ui->actionEthercat_scan->setEnabled(false);
       }
 }
 
@@ -175,6 +176,7 @@ void MainWindow::on_actionEthercat_exit_triggered()
          ui->actionEthercat_run->setEnabled(false);
          ui->actionEthercat_stop->setEnabled(false);
          ui->actionEthercat_exit->setEnabled(false);
+         ui->actionEthercat_scan->setEnabled(true);
      }
 }
 /********************** SLOTS END ******************************/

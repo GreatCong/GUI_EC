@@ -37,6 +37,8 @@ public:
     QQueue<Gcode_segment> *getGodeQueue();
     void clearQueue();
     int handleMCode(float code);
+
+    void setCurrentPoint(const QVector3D point);
 private:
     // Current state
     bool m_isMetric;

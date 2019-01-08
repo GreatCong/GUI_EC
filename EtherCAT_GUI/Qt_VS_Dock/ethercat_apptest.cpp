@@ -1,5 +1,53 @@
 ﻿#include "mainformview.h"
 
+#include "RTTimer.h"
+
+typedef struct{
+   int Timer_id;
+   bool isRun;
+   int period_us;
+}RTtimer_User_S;
+
+RTtimer_User_S RTtimer_User = {
+    1,false,2000
+};
+
+DWORD_PTR user;
+
+void CALLBACK TimerCallBack()//回调函数
+{
+//    if(ret == Error_TimeOut){
+//        MY_DEBUG_PRINT("OverTime!\r\n");
+//    }
+    MainFormView *t = reinterpret_cast<MainFormView*>(user);//强制转换
+
+    static volatile int wkc;
+    int expectedWKC = t->get_UserGeneralTab()->master->Master_get_expectedWKC();
+     //t->m_timer_advanced->is_enableCallBack = false;//防止多次并发
+     int state = t->get_UserGeneralTab()->master->Master_readState(0);
+     //qDebug() << user_form_generalTab->master->Master_stateToString(state);
+     if(state == My_EthercatMaster::STATE_OPERATIONAL){
+         if(wkc >= expectedWKC){//第一次运行会出现这个问题
+              t->m_motorApp_callback.Master_AppLoop_callback();
+         }
+         else{
+             qWarning() << "wkc<expectedWKC";
+         }
+     }
+     else{
+         qDebug() << t->get_UserGeneralTab()->master->Master_stateToString(state);
+         t->get_UserGeneralTab()->master->Master_writeState(0,My_EthercatMaster::STATE_OPERATIONAL);
+         t->get_UserGeneralTab()->master->Master_CheckState(0,My_EthercatMaster::STATE_OPERATIONAL,1000);
+     }
+     //user_form_generalTab->master->Master_process_loop(My_EthercatMaster::STATE_OPERATIONAL,1000);//设置5ms的检查延时
+     t->get_UserGeneralTab()->master->Master_processData_send();
+     wkc= t->get_UserGeneralTab()->master->Master_processData_receive(5000);//短了wkc<expectedWKC
+     //t->m_timer_advanced->is_enableCallBack = true;
+
+//    static int i;
+//    qDebug() << i++;
+}
+
 /********************* Slots  *******************************/
 void MainFormView::mTimerAdvanced_timeout()
 {
@@ -88,10 +136,14 @@ int MainFormView::Master_scan(){
 /// \brief MainFormView::Master_run
 ///
 int MainFormView::Master_run(){
+
     if(user_form_generalTab->master->Master_getSlaveCount()>0){
         //设置10ms，有时候还会超时，并非严格的10ms周期
-        m_timer_advanced->setInterval(10);//10ms
-        m_timer_advanced->start();
+//        m_timer_advanced->setInterval(10);//10ms
+//        m_timer_advanced->start();
+//        TimeRun(Timer_id, 10000, TimerCallBack); //开启周期数据通信
+//        user = (DWORD_PTR)this;
+
         m_motorApp_callback.Gcode_setAddress(m_GcodeSegment_Q);
 //        if(m_GcodeSegment_Q->empty()){
 //            qDebug() << "Master_run Q empty!";
@@ -104,6 +156,14 @@ int MainFormView::Master_run(){
         user_form_generalTab->master->Master_run();
         m_motorApp_callback.Master_setAdressBase(user_form_generalTab->master->Master_getAddressBase());//设定地址
         m_motorApp_callback.Master_AppStart_callback();//开始运行回调
+
+        //最好放在后面，否则会崩溃
+        if(!RTtimer_User.isRun){
+            TimeRun(RTtimer_User.Timer_id, RTtimer_User.period_us, TimerCallBack); //开启周期数据通信
+            user = (DWORD_PTR)this;
+            RTtimer_User.isRun = true;
+        }
+
     }
     else{
         QMessageBox::warning(this,tr("Ethercat warning"),tr("No Slaves!Please scan slaves first"));
@@ -118,8 +178,14 @@ int MainFormView::Master_run(){
 /// \brief MainFormView::Master_stop
 ///
 int MainFormView::Master_stop(){
+
     if(user_form_generalTab->master->Master_getSlaveCount()>0){
-        m_timer_advanced->stop();
+        //m_timer_advanced->stop();
+        if(RTtimer_User.isRun){
+           TestKillTimer(RTtimer_User.Timer_id);
+           RTtimer_User.isRun = false;
+        }
+
         user_form_generalTab->master->Master_stop();
         m_motorApp_callback.Master_AppStop_callback();//结束运行回调
         GcodeSendThread->quit();
@@ -209,7 +275,7 @@ void MainFormView::keyPressEvent(QKeyEvent *event){
 //        m_motorApp_callback.start();
         break;
      case Qt::Key_R:
-            m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = 280.799;
+            m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = 280.80;
             m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = 0;
             m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = 155;
 //            m_motorApp_callback.start();

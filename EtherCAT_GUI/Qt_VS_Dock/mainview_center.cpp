@@ -349,6 +349,7 @@ void MainFormView::MotorCallback_GcodeLineChange(int line){
     //实现滚动效果
     m_table_Gcode->selectRow(line);
     m_table_Gcode->scrollTo(m_table_Gcode->model()->index(line,QTableView::EnsureVisible));
+    //改变状态
     int current_row = m_table_Gcode->currentRow();
     QTableWidgetItem *tableItem = new QTableWidgetItem(tr("OK"));
     tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);

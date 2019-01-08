@@ -3,6 +3,8 @@
 GcodeParser::GcodeParser(QObject *parent) : QObject(parent)
 {
   m_Gcode_Q = new QQueue<Gcode_segment>();
+
+  m_currentPoint = QVector3D(0,0,0);//初始化变量
 }
 
 /**
@@ -51,7 +53,10 @@ int GcodeParser::processCommand(const QStringList &args)
         gCodes.append(m_lastGcodeCommand);
     }
 
-    if(gCodes.at(0)<0){//说明不是Gcode
+//   qDebug() << "gcodeParse:"<<gCodes.at(0);
+    //NOTE:Release版本下,Mcode行gCodes.at(0)=0，Gcode行gCodes.at(0)=1
+    //Debug版本下,Mcode行gCodes.at(0)为负数乱码，Gcode行gCodes.at(0)=1
+    if(gCodes.at(0)<1){//说明不是Gcode
         //解析Mcode
         QList<float> mCodes;
         mCodes = GcodePreprocessorUtils::parseCodes(args,'M');
@@ -87,6 +92,7 @@ int GcodeParser::handleMCode(float code){
 
     return 0;
 }
+
 
 int GcodeParser::handleGCode(float code, const QStringList &args)
 {
@@ -158,4 +164,9 @@ QQueue<Gcode_segment>* GcodeParser::getGodeQueue(){
 
 void GcodeParser::clearQueue(){
     m_Gcode_Q->clear();
+}
+
+void GcodeParser::setCurrentPoint(const QVector3D point)
+{
+    m_currentPoint = point;
 }

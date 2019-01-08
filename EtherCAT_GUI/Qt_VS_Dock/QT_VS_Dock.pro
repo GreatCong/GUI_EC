@@ -69,7 +69,8 @@ SOURCES += \
     mainview_test.cpp \
     tables/gcodetablemodel.cpp \
     thread_test.cpp \
-    Ethercat_class/Ethercat_Utile.cpp
+    Ethercat_class/Ethercat_Utile.cpp \
+    Ethercat_class/RTTimer.cpp
 
 HEADERS += \
     $$PWD/Ethercat_class/my_ethercatmaster.h \
@@ -81,7 +82,8 @@ HEADERS += \
     GcodeParser.h \
     tables/gcodetablemodel.h \
     thread_test.h \
-    Ethercat_class/Ethercat_Utile.h
+    Ethercat_class/Ethercat_Utile.h \
+    Ethercat_class/RTTimer.h
 
 INCLUDEPATH += $$PWD/Ethercat_class
 INCLUDEPATH += $$PWD/tables

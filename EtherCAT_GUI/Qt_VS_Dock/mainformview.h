@@ -167,6 +167,10 @@ public:
 
     int Load_setting(const QString &path);
     int Save_setting(const QString &path);
+
+    Form_GeneralTab *get_UserGeneralTab(){
+        return user_form_generalTab;
+    }
 private slots:
     void mDeviceTree_customContextMenuRequested(const QPoint &pos);
     void mDeviceTree_DoubleClicked(const QModelIndex);
