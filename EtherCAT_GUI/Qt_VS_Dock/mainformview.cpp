@@ -16,7 +16,8 @@ MainFormView::MainFormView(QWidget *parent) :
 
     this->Init_Cores();
     this->Init_TestCores();//测试的对象初始化
-    this->EthercatApp_init();
+    this->EthercatApp_init();   
+
 
 //    thread_test *xx = new thread_test();
 //    thread = new QThread();
@@ -68,7 +69,7 @@ void MainFormView::Init_Cores()
 
     m_status_label = new QLabel("Ready",this);
 
-    controlTab_isTheta_display = false;
+   // controlTab_isTheta_display = false;
 //    m_status_label->setFrameStyle(QFrame::NoFrame);//无边框
 
 //    Set_StatusWidget(m_scanWait_processBar,true);//会出错
@@ -79,6 +80,7 @@ void MainFormView::Init_Cores()
 }
 
 int MainFormView::Load_setting(const QString &path){
+#if 0
 //    QFile file("./config.ini");
     QFile file(path);
     if(file.exists()){
@@ -122,11 +124,14 @@ int MainFormView::Load_setting(const QString &path){
         Set_StatusMessage(tr("Load default setting!"),3000);
     }
 
+#endif
+
     return 0;
 
 }
 
 int MainFormView::Save_setting(const QString &path){
+#if 0
    QSettings setting(path,QSettings::IniFormat);//读配置文件
    setting.beginGroup(tr("Login"));
    setting.setValue("account","DRE");//设置key和value，也就是参数和值
@@ -145,42 +150,31 @@ int MainFormView::Save_setting(const QString &path){
    setting.setValue("Adapter_Desc",user_form_generalTab->getMaster_adapterDesc());
 //   setting.setValue("remeber",true);
    setting.endGroup();//节点结束
-
+#endif
     return 0;
 }
 
-///
-/// \brief MainFormView::getLeftWidget
-/// \return
-///
-QFrame * MainFormView::getLeftWidget(){
-    return ui->frame_left_document;
-}
 
-///
-/// \brief MainFormView::getRightWidget
-/// \return
-///
-QFrame * MainFormView::getRightWidget(){
-    return ui->frame_right_property;
+QFrame *MainFormView::get_FramePtr(Frame_choose choose){
+    switch(choose){
+    case Frame_left_f:
+        return ui->frame_left_document;
+        break;
+    case Frame_right_f:
+        return ui->frame_right_property;
+        break;
+    case Frame_center_f:
+        return ui->frame_center_main;
+        break;
+    case Frame_bottom_f:
+        return ui->frame_bottom_message;
+        break;
+    default:
+        QMessageBox::critical(this,tr("MainFormView Frame"),tr("Return NULL!"));
+        return NULL;
+        break;
+    }
 }
-
-///
-/// \brief MainFormView::getCenterWidget
-/// \return
-///
-QFrame * MainFormView::getCenterWidget(){
-    return ui->frame_center_main;
-}
-
-///
-/// \brief MainFormView::getBottomWidget
-/// \return
-///
-QFrame * MainFormView::getBottomWidget(){
-    return ui->frame_bottom_message;
-}
-
 
 /************  Slots *******************/
 

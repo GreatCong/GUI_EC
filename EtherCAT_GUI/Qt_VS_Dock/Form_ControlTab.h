@@ -26,6 +26,8 @@ private:
 private:
     void Init_Cores();
     void Destroy_Cores();
+
+    void keyPressEvent(QKeyEvent *event);
 public:
     typedef enum{
         Gcode_openFile_b,
@@ -78,7 +80,7 @@ public:
     void set_LCDnumber_Display(Axis_num num, double data);
 signals:
     void Jog_ButtonDown(int button);
-
+    void Key_EventSignal(QKeyEvent *event);
 
 private slots:
     void on_toolButton_jogY_positive_clicked();

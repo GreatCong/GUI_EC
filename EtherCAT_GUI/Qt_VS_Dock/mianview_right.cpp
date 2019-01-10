@@ -8,18 +8,18 @@ void MainFormView::Init_FrameRight_Content()
 {
     QPushButton *button = new QPushButton(tr("插件管理"),this);
     connect(button,SIGNAL(clicked(bool)),this,SLOT(Plugins_Manager_clicked()));
-    getRightWidget()->layout()->addWidget(button);
+    get_FramePtr(Frame_right_f)->layout()->addWidget(button);
     button = new QPushButton(tr("载入插件"),this);
     connect(button,SIGNAL(clicked(bool)),this,SLOT(Plugins_Add_clicked()));
-    getRightWidget()->layout()->addWidget(button);
+    get_FramePtr(Frame_right_f)->layout()->addWidget(button);
     button = new QPushButton(tr("打开编辑器"),this);
     connect(button,SIGNAL(clicked(bool)),this,SLOT(Plugins_OpenEditor_clicked()));
-    getRightWidget()->layout()->addWidget(button);
+    get_FramePtr(Frame_right_f)->layout()->addWidget(button);
 
     m_pluginList = new My_LisetView_Plugin(this);
     connect(m_pluginList,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(mPlugins_item_DoubleClicked(QListWidgetItem*)));
     connect(m_pluginList,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(mPlugins_item_Clicked(QListWidgetItem*)));
-    getRightWidget()->layout()->addWidget(m_pluginList);
+    get_FramePtr(Frame_right_f)->layout()->addWidget(m_pluginList);
 
     mTableWidget_property = new QTableWidget(this);
     mTableWidget_property->setColumnCount(2);
@@ -36,7 +36,7 @@ void MainFormView::Init_FrameRight_Content()
     mTableWidget_property->verticalHeader()->setVisible(false); //设置垂直头不可见
 //    mTableWidget_property->horizontalHeader()->setStyleSheet("QHeaderView::section{background:skyblue;}");
 
-    getRightWidget()->layout()->addWidget(mTableWidget_property);
+    get_FramePtr(Frame_right_f)->layout()->addWidget(mTableWidget_property);
 }
 
 /************  Slots *******************/

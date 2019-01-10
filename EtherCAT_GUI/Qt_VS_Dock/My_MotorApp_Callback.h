@@ -7,7 +7,7 @@
 
 #include "GcodeParser.h"
 
-#define ARM_PEINT_DEBUG 1
+//#define ARM_PEINT_DEBUG 1
 #define Printf_MSG qDebug
 
 #define AXIS_N 3 //3轴控制
@@ -144,6 +144,7 @@ signals:
     void Gcode_lineChange(int line);
     void Gcode_PositionChange(QVector3D pos);//发送正解信息
     void Gcode_ThetaChange(QVector3D theta);//发送反解信息
+    void Master_QuitSignal(bool isQuit);
 };
 
 #endif // MY_MOTORAPP_CALLBACK_H

@@ -7,7 +7,7 @@ void MainFormView::Init_FrameLeft_Content()
 {
 //    Init_Left_DeviceTree();
     mDeviceTree = new My_TreeView_Device(this);
-    getLeftWidget()->layout()->addWidget(mDeviceTree);
+    get_FramePtr(Frame_left_f)->layout()->addWidget(mDeviceTree);
 
     Init_DeviceTreeItem_menu();//初始化右键菜单
     //连接信号槽

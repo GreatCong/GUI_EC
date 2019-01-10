@@ -362,6 +362,9 @@ void My_MotorApp_Callback::Master_AppStart_callback()
 //   else{
 //       qDebug() << "My_MotorApp_Callback Q No empty!";
 //   }
+
+   emit Master_QuitSignal(false);//线程停止
+
 }
 
 void My_MotorApp_Callback::Master_AppStop_callback()
@@ -375,6 +378,8 @@ void My_MotorApp_Callback::Master_AppStop_callback()
   m_Stepper_control.step_count = 0;
 //  memset(&m_sys_position,0,sizeof(m_sys_position));
   Arm_motion_reset();//不能全部置0
+
+  emit Master_QuitSignal(true);//线程停止
 }
 
 int My_MotorApp_Callback::Master_setAdressBase(char *address)

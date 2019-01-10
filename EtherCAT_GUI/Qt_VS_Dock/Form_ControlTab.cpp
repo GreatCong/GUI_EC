@@ -202,3 +202,7 @@ void Form_ControlTab::on_toolButton_jogHalt_clicked()
 {
     emit Jog_ButtonDown(Jog_Halt_b);
 }
+
+void Form_ControlTab::keyPressEvent(QKeyEvent *event){
+    emit Key_EventSignal(event);
+}

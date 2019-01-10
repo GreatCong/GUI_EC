@@ -15,6 +15,8 @@ public:
     virtual void Master_AppStop_callback() = 0;
     virtual void Master_ReleaseAddress() =0;
     virtual int Master_setAdressBase(char* address) = 0;
+
+    int m_slaveCount;
 };
 
 ///
