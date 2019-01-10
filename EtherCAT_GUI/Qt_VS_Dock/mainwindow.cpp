@@ -5,6 +5,8 @@
 #include <QTextEdit>
 #include <QDebug>
 
+#define VERSION_CODE "Version 1.0 beta"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -178,6 +180,11 @@ void MainWindow::on_actionEthercat_exit_triggered()
          ui->actionEthercat_exit->setEnabled(false);
          ui->actionEthercat_scan->setEnabled(true);
      }
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox::information(this,"About",VERSION_CODE);
 }
 /********************** SLOTS END ******************************/
 

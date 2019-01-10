@@ -17,9 +17,6 @@
 #include <QStackedWidget>
 #include <QTabWidget>
 
-#include "formcomm.h"
-#include "formscripts.h"
-
 #include "form_generaltab.h"
 #include "my_treeview_device.h"
 #include "my_UserAppWidge.h"
@@ -114,18 +111,14 @@ private:
     void EthercatApp_destroy();
 
     /* 测试用的 */
-    FormComm *user_formComm;
-    FormScripts *user_form_scripts;
     Form_GeneralTab *user_form_generalTab;
     QTimer *mm_time;
     int timer_num;
-
 
     void Init_TestCores();
     void Init_Plots();
     /* 测试结束 */
 
-//    int Gcode_load(QString &fileName);
 public:
     /*   MainWindow  */
     QProgressBar *m_scanWait_processBar;

@@ -35,6 +35,7 @@ MainFormView::~MainFormView()
 {
    this->EthercatApp_destroy();
    user_form_generalTab->deleteLater();
+   control_xx->Destroy_Cores();
     delete ui;
 }
 
@@ -80,24 +81,14 @@ void MainFormView::Init_Cores()
 }
 
 int MainFormView::Load_setting(const QString &path){
-#if 0
+
 //    QFile file("./config.ini");
     QFile file(path);
     if(file.exists()){
         QSettings setting(path,QSettings::IniFormat);//读配置文件
 
-//        QString str_3=setting.value("Login/account").toString();
-//        qDebug() << str_3;
-        QString setting_GcodePath = setting.value("Path/GcodePath").toString();
         QString setting_pluginDir =  setting.value("Path/PluginPath").toString();
         QDir dir;
-        dir= QDir(setting_GcodePath);
-        if(dir.exists()){
-            m_GcodePath = setting_GcodePath;
-        }
-        else{
-            QMessageBox::warning(this,tr("Path Error!"),"GcodePath is Invalid,loading default path..");
-        }
         dir= QDir(setting_pluginDir);
         if(dir.exists()){
             m_pluginDir = setting_pluginDir;
@@ -105,8 +96,6 @@ int MainFormView::Load_setting(const QString &path){
         else{
             QMessageBox::warning(this,tr("Path Error!"),"PluginPath is Invalid,loading default path..");
         }
-//        m_GcodePath = setting.value("Path/GcodePath").toString();
-//        m_pluginDir = setting.value("Path/PluginPath").toString();
 
         QString master_adapterName = setting.value("EtherCAT/Adapter_Name").toString();
         QString master_adapterDesc = setting.value("EtherCAT/Adapter_Desc").toString();
@@ -118,20 +107,20 @@ int MainFormView::Load_setting(const QString &path){
 //        qDebug() << m_GcodePath<<m_pluginDir;
     }
     else{
-        m_GcodePath = "./";
+//        m_GcodePath = "./";
         m_pluginDir = "./";
 //        qDebug() << "Load default setting!";
         Set_StatusMessage(tr("Load default setting!"),3000);
     }
 
-#endif
+
 
     return 0;
 
 }
 
 int MainFormView::Save_setting(const QString &path){
-#if 0
+
    QSettings setting(path,QSettings::IniFormat);//读配置文件
    setting.beginGroup(tr("Login"));
    setting.setValue("account","DRE");//设置key和value，也就是参数和值
@@ -140,7 +129,7 @@ int MainFormView::Save_setting(const QString &path){
    setting.endGroup();//节点结束
 
    setting.beginGroup(tr("Path"));
-   setting.setValue("GcodePath",m_GcodePath);//设置key和value，也就是参数和值
+//   setting.setValue("GcodePath",m_GcodePath);//设置key和value，也就是参数和值
    setting.setValue("PluginPath",m_pluginDir);
 //   setting.setValue("remeber",true);
    setting.endGroup();//节点结束
@@ -150,7 +139,7 @@ int MainFormView::Save_setting(const QString &path){
    setting.setValue("Adapter_Desc",user_form_generalTab->getMaster_adapterDesc());
 //   setting.setValue("remeber",true);
    setting.endGroup();//节点结束
-#endif
+
     return 0;
 }
 

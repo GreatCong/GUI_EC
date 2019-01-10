@@ -36,6 +36,8 @@ private slots:
 
     void on_actionEthercat_exit_triggered();
 
+    void on_actionAbout_triggered();
+
 private:
     MainFormView *_view_main;
     QString _path_setting;

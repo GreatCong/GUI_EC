@@ -7,22 +7,15 @@
 #include "Form_ControlTab.h"
 
 //此对象主要包含2个部分 界面UI和操作回调callback
-class ControlTab_P : public QObject
+class ControlTab_P : public QObject,public EtherCAT_UserApp
 {
     Q_OBJECT
 public:
     explicit ControlTab_P(QObject *parent = nullptr);
 public:
-    virtual QWidget *get_UIWidgetPtr();
-    virtual Ethercat_Callback *get_CallbackPtr();
     virtual void Init_Cores();
     virtual void Destroy_Cores();
 private:
-    virtual void set_UIWidgetPtr(QWidget *widget);
-    virtual void set_CallbackPtr(Ethercat_Callback *callback);
-
-    QWidget *_UIWidget;
-    Ethercat_Callback *_EC_callback;
 
     Form_ControlTab *user_form_controlTab;
     My_MotorApp_Callback *m_motorApp_callback;//Ethercat应用回调
@@ -41,6 +34,8 @@ private:
     void Set_MasterStop();
 
 
+    int Load_setting(const QString &path);
+    int Save_setting(const QString &path);
 signals:
     void StatusMessage_change(QString message,int interval);//状态栏信息
     void BottomMessage_change(QString message);//bottom Text message

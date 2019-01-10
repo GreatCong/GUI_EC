@@ -5,19 +5,7 @@
 
 #define USE_CHECK_THREAD 1
 
-class Ethercat_Callback
-{
-public:
-    Ethercat_Callback() {}
-public:
-    virtual void Master_AppLoop_callback() = 0;
-    virtual void Master_AppStart_callback() = 0;
-    virtual void Master_AppStop_callback() = 0;
-    virtual void Master_ReleaseAddress() =0;
-    virtual int Master_setAdressBase(char* address) = 0;
-
-    int m_slaveCount;
-};
+#include "EtherCAT_UserApp.h"
 
 ///
 /// \brief The Ethercat_SlaveMSG_Item class

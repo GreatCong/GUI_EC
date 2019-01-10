@@ -87,7 +87,8 @@ HEADERS += \
     Ethercat_class/Ethercat_Utile.h \
     Ethercat_class/RTTimer.h \
     Form_ControlTab.h \
-    ControlTab_P.h
+    ControlTab_P.h \
+    EtherCAT_UserApp.h
 
 INCLUDEPATH += $$PWD/Ethercat_class
 INCLUDEPATH += $$PWD/tables
@@ -96,8 +97,6 @@ INCLUDEPATH += $$PWD/tables
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    formcomm.cpp \
-    formscripts.cpp \
     my_treeview_device.cpp \
     my_lisetview_plugin.cpp \
     mainformview.cpp \   
@@ -108,8 +107,6 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    formcomm.h \
-    formscripts.h \
     mainformview.h \
     my_treeview_device.h \
     user_common.h \
@@ -120,8 +117,6 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui \
-    formcomm.ui \
-    formscripts.ui \
     mainformview.ui \
     form_GeneralTab.ui \
     Form_ControlTab.ui

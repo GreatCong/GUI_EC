@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QKeyEvent>
+#include <QSettings>
 
 //用于解析G代码
 #define PROGRESSMINLINES 10000 //G代码文件的最大行数
@@ -20,28 +21,10 @@ ControlTab_P::ControlTab_P(QObject *parent) : QObject(parent)
    set_CallbackPtr(m_motorApp_callback);
 }
 
-QWidget *ControlTab_P::get_UIWidgetPtr()
-{
-    return _UIWidget;
-}
-
-Ethercat_Callback *ControlTab_P::get_CallbackPtr()
-{
-    return _EC_callback;
-}
-
-void ControlTab_P::set_UIWidgetPtr(QWidget *widget)
-{
-    _UIWidget = widget;
-}
-
-void ControlTab_P::set_CallbackPtr(Ethercat_Callback *callback)
-{
-    _EC_callback = callback;
-}
-
 void ControlTab_P::Init_Cores()
 {
+    Load_setting("./config_User.ini");//加载设置
+
     controlTab_isTheta_display = user_form_controlTab->get_CheckBoxPtr(Form_ControlTab::check_isThetaDis_c)->checkState();
 
     connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_openFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_OpenGcode_clicked()));
@@ -76,7 +59,7 @@ void ControlTab_P::Init_Cores()
 
 void ControlTab_P::Destroy_Cores()
 {
-
+   Save_setting("./config_User.ini");//保存设置
 }
 
 /*********************** Operation *************************/
@@ -93,6 +76,60 @@ void ControlTab_P::Set_BottomMessage(QString message)
 void ControlTab_P::Set_MasterStop()
 {
     emit MasterStop_Signal();//发出自定义信号
+}
+
+int ControlTab_P::Load_setting(const QString &path){
+
+//    QFile file("./config.ini");
+    QFile file(path);
+    if(file.exists()){
+        QSettings setting(path,QSettings::IniFormat);//读配置文件
+
+//        QString str_3=setting.value("Login/account").toString();
+//        qDebug() << str_3;
+        QString setting_GcodePath = setting.value("Path/GcodePath").toString();
+//        QString setting_pluginDir =  setting.value("Path/PluginPath").toString();
+        QDir dir;
+        dir= QDir(setting_GcodePath);
+        if(dir.exists()){
+            m_GcodePath = setting_GcodePath;
+        }
+        else{
+            QMessageBox::warning(get_UIWidgetPtr(),tr("Path Error!"),"GcodePath is Invalid,loading default path..");
+        }
+
+//        m_GcodePath = setting.value("Path/GcodePath").toString();
+//        m_pluginDir = setting.value("Path/PluginPath").toString();
+
+//        QString master_adapterName = setting.value("EtherCAT/Adapter_Name").toString();
+//        QString master_adapterDesc = setting.value("EtherCAT/Adapter_Desc").toString();
+//        user_form_generalTab->setMaster_adapterName(master_adapterName);
+//        user_form_generalTab->setMaster_adapterDesc(master_adapterDesc);
+//        //bind to master
+//        user_form_generalTab->master->m_adapterDescSelect = master_adapterDesc;
+//        user_form_generalTab->master->m_adapterNameSelect = master_adapterName;
+//        qDebug() << m_GcodePath<<m_pluginDir;
+    }
+    else{
+        m_GcodePath = "./";
+//        qDebug() << "Load default setting!";
+        Set_StatusMessage(tr("User:Load default setting!"),3000);
+    }
+
+    return 0;
+}
+
+int ControlTab_P::Save_setting(const QString &path){
+
+   QSettings setting(path,QSettings::IniFormat);//读配置文件
+
+   setting.beginGroup(tr("Path"));
+   setting.setValue("GcodePath",m_GcodePath);//设置key和value，也就是参数和值
+//   setting.setValue("PluginPath",m_pluginDir);
+//   setting.setValue("remeber",true);
+   setting.endGroup();//节点结束
+
+    return 0;
 }
 
 int ControlTab_P::Gcode_load(QString &fileName){

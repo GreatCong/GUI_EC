@@ -1,7 +1,7 @@
 ﻿#ifndef MY_MOTORAPP_CALLBACK_H
 #define MY_MOTORAPP_CALLBACK_H
 
-#include "my_EthercatMaster.h"
+#include "EtherCAT_UserApp.h"
 #include <QQueue>
 #include <QThread>
 
