@@ -5,6 +5,11 @@ GcodeParser::GcodeParser(QObject *parent) : QObject(parent)
   m_Gcode_Q = new QQueue<Gcode_segment>();
 
   m_currentPoint = QVector3D(0,0,0);//初始化变量
+  m_isMetric = true;
+  m_inAbsoluteMode = true;
+  m_inAbsoluteIJKMode = false;
+  m_lastGcodeCommand = -1;
+  m_commandNumber = 0;
 }
 
 /**
@@ -30,6 +35,7 @@ int GcodeParser::addCommand(const QStringList &args)
 
 int GcodeParser::processCommand(const QStringList &args)
 {
+    static int xx = 0;
     QList<float> gCodes;
 //    PointSegment *ps = NULL;
 
@@ -49,17 +55,18 @@ int GcodeParser::processCommand(const QStringList &args)
     gCodes = GcodePreprocessorUtils::parseCodes(args, 'G');
 
     // If there was no command, add the implicit one to the party.
-    if (gCodes.isEmpty() && m_lastGcodeCommand != -1) {
-        gCodes.append(m_lastGcodeCommand);
-    }
-
-//   qDebug() << "gcodeParse:"<<gCodes.at(0);
-    //NOTE:Release版本下,Mcode行gCodes.at(0)=0，Gcode行gCodes.at(0)=1
-    //Debug版本下,Mcode行gCodes.at(0)为负数乱码，Gcode行gCodes.at(0)=1
-    if(gCodes.at(0)<1){//说明不是Gcode
+//    if (gCodes.isEmpty() && m_lastGcodeCommand != -1) {//注释行
+//        gCodes.append(m_lastGcodeCommand);
+////        qDebug() << "ssd"<<xx++<<args;
+//    }
+  //NOTE:M代码必须要是新行才能识别
+    if(gCodes.isEmpty()){//说明不是Gcode
         //解析Mcode
         QList<float> mCodes;
         mCodes = GcodePreprocessorUtils::parseCodes(args,'M');
+        if(mCodes.isEmpty()){
+            mCodes.append(Gcode_segment::Invalid_Mcode);//如果既不是Gcode也不是Mcode,则赋值为M-2表示无效代码
+        }
         foreach (float code, mCodes) {
     //        ps = handleGCode(code, args);
             handleMCode(code);

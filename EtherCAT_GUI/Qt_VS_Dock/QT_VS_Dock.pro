@@ -70,7 +70,8 @@ SOURCES += \
     tables/gcodetablemodel.cpp \
     thread_test.cpp \
     Ethercat_class/Ethercat_Utile.cpp \
-    Ethercat_class/RTTimer.cpp
+    Ethercat_class/RTTimer.cpp \
+    Form_ControlTab.cpp
 
 HEADERS += \
     $$PWD/Ethercat_class/my_ethercatmaster.h \
@@ -83,7 +84,8 @@ HEADERS += \
     tables/gcodetablemodel.h \
     thread_test.h \
     Ethercat_class/Ethercat_Utile.h \
-    Ethercat_class/RTTimer.h
+    Ethercat_class/RTTimer.h \
+    Form_ControlTab.h
 
 INCLUDEPATH += $$PWD/Ethercat_class
 INCLUDEPATH += $$PWD/tables
@@ -119,7 +121,8 @@ FORMS += \
     formcomm.ui \
     formscripts.ui \
     mainformview.ui \
-    form_GeneralTab.ui
+    form_GeneralTab.ui \
+    Form_ControlTab.ui
 
 RESOURCES += \
     res_icons.qrc

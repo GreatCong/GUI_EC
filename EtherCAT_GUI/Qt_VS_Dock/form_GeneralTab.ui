@@ -133,7 +133,68 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,2,3,2,3,1">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,3,1,2,3,1,2,3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>PLC Period</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_PLCPeriod">
+            <item>
+             <property name="text">
+              <string>1ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>4ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>5ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>6ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>7ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>8ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>9ms</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>10ms</string>
+             </property>
+            </item>
+           </widget>
+          </item>
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
@@ -162,6 +223,19 @@
            </widget>
           </item>
           <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>Inquire State</string>
@@ -175,36 +249,10 @@
             </property>
            </widget>
           </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </item>
         <item row="1" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,2,1,2,1,2,1,2,1">
-          <item>
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,1,2,1,2,1,2">
           <item>
            <widget class="QPushButton" name="pushButton_State_Init">
             <property name="text">
@@ -271,19 +319,6 @@
              <string>Op</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_8">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>

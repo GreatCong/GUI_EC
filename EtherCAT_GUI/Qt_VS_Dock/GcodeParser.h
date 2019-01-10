@@ -11,6 +11,7 @@ class Gcode_segment{
 public:
     typedef enum{
         No_Mcode = -1,
+        Invalid_Mcode = -2,
         MotorTool_On = 100,
         MotorTool_Off = 101,
         COMMENT_CODE = -1000,//注释行，保证行号对齐

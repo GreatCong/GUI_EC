@@ -30,6 +30,7 @@
 #include "GcodePreprocessorUtils.h"
 #include "GcodeParser.h"
 //#include "gcodetablemodel.h"
+#include "Form_ControlTab.h"
 
 #ifdef _MSC_VER //windows
 #include "MMTimer_RTwin.h"
@@ -88,13 +89,13 @@ private:
     QQueue<Gcode_segment> *m_GcodeSegment_Q;
     GcodeParser *gp_t;
 //    QPushButton* m_button_openGcode;
-    QLineEdit * m_lineEdit_GcodePath;
-    QLineEdit * m_lineEdit_XPos;
-    QLineEdit * m_lineEdit_YPos;
-    QLineEdit * m_lineEdit_ZPos;
-    QLineEdit * m_lineEdit_Pos_Step;
-    QLineEdit * m_lineEdit_Pos_Speed;
-    QTableWidget *m_table_Gcode;
+//    QLineEdit * m_lineEdit_GcodePath;
+//    QLineEdit * m_lineEdit_XPos;
+//    QLineEdit * m_lineEdit_YPos;
+//    QLineEdit * m_lineEdit_ZPos;
+//    QLineEdit * m_lineEdit_Pos_Step;
+//    QLineEdit * m_lineEdit_Pos_Speed;
+//    QTableWidget *m_table_Gcode;
     QString m_GcodePath;
     QString m_GcodePath_full;
     /* Ethercat End */
@@ -105,6 +106,7 @@ private:
     /*   Temp  */
     QThread *thread;
     QThread *GcodeSendThread;
+    bool controlTab_isTheta_display;
 
     void Init_FrameLeft_Content(void);
     void Init_FrameRight_Content(void);
@@ -137,6 +139,7 @@ private:
     FormComm *user_formComm;
     FormScripts *user_form_scripts;
     Form_GeneralTab *user_form_generalTab;
+    Form_ControlTab *user_form_controlTab;
     QTimer *mm_time;
     int timer_num;
 
@@ -189,6 +192,7 @@ private slots:
     
     void mTimerAdvanced_timeout();
 
+
     /* 测试用的 */
     void mm_timerOut();
     /* 测试结束 */
@@ -198,6 +202,10 @@ private slots:
     void Control_ReloadGcode_clicked();
     void Control_SendGcode_clicked();
     void MotorCallback_GcodeLineChange(int line);
+    void controlTab_jog_clicked(int button);
+    void MotorCallback_GcodePositionChange(QVector3D pos);
+    void MotorCallback_GcodeThetaChange(QVector3D theta);
+    void controlTab_checkThetaDis_stateChange(int arg);
 signals:
 //    void explains(); //如果要自定义槽和信号, explains信号是必须的
     //NOTE:自定义信号，加入const变量无法识别???可能是没有向QT注册const signal

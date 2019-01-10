@@ -1,6 +1,8 @@
 ﻿#include "form_generaltab.h"
 #include "ui_form_GeneralTab.h"
 
+#include <QMessageBox>
+
 #include <QHeaderView>
 #include <QCheckBox>
 
@@ -41,6 +43,9 @@ Form_GeneralTab::Form_GeneralTab(QWidget *parent) :
     ui->lineEdit_AdapterName->setPlaceholderText(tr("Name"));
     ui->lineEdit_ActualState->setPlaceholderText(tr("Actual State"));
     ui->lineEdit_InquireState->setPlaceholderText(tr("Inquire State"));
+
+//    get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
+//    get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
 
 //    ui->pushButton_State_Op->setEnabled(false);//禁止Op按钮
 }
@@ -86,6 +91,8 @@ void Form_GeneralTab::Init_cores(){
     tableItem = new QTableWidgetItem(tr("..."));
     tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     table->setItem(1,0,tableItem);
+
+    ui->comboBox_PLCPeriod->setCurrentIndex(9);//设置初始的PLC周期为10ms
 }
 
 const QString Form_GeneralTab::getMaster_adapterName(){
@@ -102,6 +109,50 @@ void Form_GeneralTab::setMaster_adapterName(const QString &str ){
 
 void Form_GeneralTab::setMaster_adapterDesc(const QString &str){
    ui->lineEdit_AdapterDesc->setText(str);
+}
+
+QPushButton *Form_GeneralTab::get_ButtonPtr(buttons_choose choose)
+{
+    switch(choose){
+    case Master_stateInit_b:
+        return ui->pushButton_State_Init;
+        break;
+    case Master_statePreOp_b:
+        return ui->pushButton_State_PreOp;
+        break;
+    case Master_stateSafeOp_b:
+        return ui->pushButton_State_SafeOp;
+        break;
+    case Master_stateOp_b:
+        return ui->pushButton_State_Op;
+        break;
+    default:
+        QMessageBox::critical(this,tr("Form_GeneralTab Button"),tr("Return NULL!"));
+        return NULL;
+        break;
+    }
+}
+
+QLineEdit *Form_GeneralTab::get_LineEditPtr(lineEdits_choose choose)
+{
+    switch(choose){
+    case Master_adapterDesc_e:
+        return ui->lineEdit_AdapterDesc;
+        break;
+    case Master_adapterName_e:
+        return ui->lineEdit_AdapterName;
+        break;
+    case Master_InquireState_e:
+        return ui->lineEdit_InquireState;
+        break;
+    case Master_ActualState_e:
+        return ui->lineEdit_ActualState;
+        break;
+    default:
+        QMessageBox::critical(this,tr("Form_GeneralTab LineEdit"),tr("Return NULL!"));
+        return NULL;
+        break;
+    }
 }
 
 /*********************** 槽函数 **************************************/

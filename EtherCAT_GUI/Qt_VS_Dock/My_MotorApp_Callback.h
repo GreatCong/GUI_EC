@@ -142,6 +142,8 @@ public slots:
     void GcodeSendThread_run();
 signals:
     void Gcode_lineChange(int line);
+    void Gcode_PositionChange(QVector3D pos);//发送正解信息
+    void Gcode_ThetaChange(QVector3D theta);//发送反解信息
 };
 
 #endif // MY_MOTORAPP_CALLBACK_H

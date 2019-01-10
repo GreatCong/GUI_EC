@@ -67,6 +67,8 @@ void MainFormView::Init_Cores()
     m_scanWait_processBar->hide();//开始不显示
 
     m_status_label = new QLabel("Ready",this);
+
+    controlTab_isTheta_display = false;
 //    m_status_label->setFrameStyle(QFrame::NoFrame);//无边框
 
 //    Set_StatusWidget(m_scanWait_processBar,true);//会出错

@@ -444,10 +444,20 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData){
 //    }
 //    calculate_forward(print_position);
 
+    //正解校验并显示
+    float print_position[3];
+    for(int i=0;i<3;i++){
+        print_position[i] = position_steps[i]/m_Step_perMM[i];
+    }
+    ARM_Motion_s arm_position_target;
+    arm_position_target = calculate_forward(print_position);
+    QVector3D position_send = QVector3D(arm_position_target.arm[0],arm_position_target.arm[1],arm_position_target.arm[2]);
+    emit Gcode_PositionChange(position_send);//发送正解
+
     if(userData == Gcode_segment::COMMENT_CODE || userData == Gcode_segment::EndParse_CODE){//如果是注释的Gcode，则为空
         delete block_new;//避免内存泄漏
         return Planner_EmptyBlock;//暂时将其定为EMPTY_BLOCK,即不运动
-    }
+    }    
 
     //将target转化为角度坐标(反解)
     ARM_Motion_s arm_motion_target;
@@ -456,6 +466,10 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData){
       delete block_new;//避免内存泄漏
       return Planner_EmptyBlock;//暂时将其定为EMPTY_BLOCK,即不运动
     }
+
+    QVector3D theta_send = QVector3D(arm_motion_target.arm[0],arm_motion_target.arm[1],arm_motion_target.arm[2]);
+    emit Gcode_ThetaChange(theta_send);//发送反解
+
     //分别计算
     for(int idx = 0;idx < AXIS_N;idx++){
 

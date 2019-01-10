@@ -254,6 +254,7 @@ int My_EthercatMaster::Master_scan(const QString &ifname){
             //printf("%d slaves found and configured.\n",ec_slavecount);
             expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
             //printf("Calculated workcounter %d\n", expectedWKC);
+
             /* wait for all slaves to reach SAFE_OP state */
             ec_statecheck(0, EC_STATE_SAFE_OP,  EC_TIMEOUTSTATE * 3);
 
@@ -273,6 +274,9 @@ int My_EthercatMaster::Master_scan(const QString &ifname){
                   }
                }
             }
+            //release版本下,会出现无法进入到safeOP,所以检查之后再次请求一次
+            //NOTE:如果之前没有正常关闭EtherCAT,下次运行的时候会出错，从而无法进入到安全运行模式
+            Master_ChangeState(0,STATE_SAFE_OP);
 
 
 //            qDebug() << "address_inputs:"<<ec_slave[1].inputs;

@@ -35,7 +35,8 @@ void CALLBACK TimerCallBack()//回调函数
          }
      }
      else{
-         qDebug() << t->get_UserGeneralTab()->master->Master_stateToString(state);
+         qDebug() << My_EthercatMaster::Master_stateToString(state);
+         t->get_UserGeneralTab()->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(state));
          t->get_UserGeneralTab()->master->Master_writeState(0,My_EthercatMaster::STATE_OPERATIONAL);
          t->get_UserGeneralTab()->master->Master_CheckState(0,My_EthercatMaster::STATE_OPERATIONAL,1000);
      }
@@ -49,8 +50,10 @@ void CALLBACK TimerCallBack()//回调函数
 }
 
 /********************* Slots  *******************************/
+
 void MainFormView::mTimerAdvanced_timeout()
 {
+#if 0
    static volatile int wkc;
    int expectedWKC = user_form_generalTab->master->Master_get_expectedWKC();
     m_timer_advanced->is_enableCallBack = false;//防止多次并发
@@ -73,7 +76,9 @@ void MainFormView::mTimerAdvanced_timeout()
     user_form_generalTab->master->Master_processData_send();
     wkc= user_form_generalTab->master->Master_processData_receive(5000);//短了wkc<expectedWKC
     m_timer_advanced->is_enableCallBack = true;
+#endif
 }
+
 /********************* Slots end  *******************************/
 
 /******************** Ethercat API(提供给mainwindow的槽使用) ******************************/
@@ -108,6 +113,7 @@ int MainFormView::Master_scan(){
 //        int slave_count = 0;
 //        int slaveItem_count = 0;
 //        mDeviceTree->Add_LeftTree_Master();
+        qDebug() << "OK1";
         foreach (Ethercat_Slave slave, user_form_generalTab->master->slaves_list) {
             //qDebug() << slave.dump_data(true);
             //TextList_append(m_bottomText,slave.dump_data(true));
@@ -118,6 +124,7 @@ int MainFormView::Master_scan(){
 //                TextList_append(m_bottomText,input.dump_data(true));
                  //m_tableView_slaveItemMSG->append_RawData(slaveItem_count++,input.dump_data());
                 mDeviceTree->Add_LeftTree_SlaveMessage(1,slave.m_slave_index,MARK_SLAVE_ITEM_INPUT - MARK_SLAVE_ITEM,input.m_name);
+                qDebug() << input.m_name;
             }
             foreach (Ethercat_SlaveMSG_Item output, slave.output_list) {
                // qDebug() << output.dump_data(true);
@@ -127,6 +134,10 @@ int MainFormView::Master_scan(){
             }
 
         }
+
+        //设置EtherCAT状态显示
+        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
+        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
     }
 
     return 0;
@@ -156,6 +167,12 @@ int MainFormView::Master_run(){
         user_form_generalTab->master->Master_run();
         m_motorApp_callback.Master_setAdressBase(user_form_generalTab->master->Master_getAddressBase());//设定地址
         m_motorApp_callback.Master_AppStart_callback();//开始运行回调
+
+        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
+        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
+
+        user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_jog_g)->setEnabled(true);//使能Jog模式
+        user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b)->setEnabled(true);
 
         //最好放在后面，否则会崩溃
         if(!RTtimer_User.isRun){
@@ -193,6 +210,13 @@ int MainFormView::Master_stop(){
         m_motorApp_callback.Gcode_ReleaseAddress();
 //        m_motorApp_callback.Master_AppStop_callback();//结束运行回调
         m_status_label->setText(tr("Ready"));
+
+        //设置状态
+        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
+        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
+
+        user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_jog_g)->setEnabled(false);
+        user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b)->setEnabled(false);
     }
     else{
          QMessageBox::warning(this,tr("Ethercat warning"),tr("No Slaves!Please scan slaves first"));
@@ -238,6 +262,10 @@ void MainFormView::EthercatApp_init(){
     m_motorApp_callback.moveToThread(GcodeSendThread);
     connect(GcodeSendThread,SIGNAL(started()),&m_motorApp_callback,SLOT(GcodeSendThread_run()));//Gcode发送线程
     connect(&m_motorApp_callback,SIGNAL(Gcode_lineChange(int)),this,SLOT(MotorCallback_GcodeLineChange(int)));//实现Gcode滚动效果
+
+    connect(user_form_controlTab,SIGNAL(Jog_ButtonDown(int)),this,SLOT(controlTab_jog_clicked(int)));//jog按钮组响应
+    connect(&m_motorApp_callback,SIGNAL(Gcode_PositionChange(QVector3D)),this,SLOT(MotorCallback_GcodePositionChange(QVector3D)));//设置显示的按钮
+    connect(&m_motorApp_callback,SIGNAL(Gcode_ThetaChange(QVector3D)),this,SLOT(MotorCallback_GcodeThetaChange(QVector3D)));//设置显示的按钮
 //    thread = new QThread();
 //    user_form_generalTab->moveToThread(thread);
 //    connect(thread,SIGNAL(started()),user_form_generalTab,SLOT(Master_scanSlot()));
@@ -253,6 +281,59 @@ void MainFormView::EthercatApp_destroy(){
     }
 }
 
+void MainFormView::controlTab_jog_clicked(int button){
+    QVector3D coor_temp;
+
+    switch(button){
+       case Form_ControlTab::Jog_AxisX_P_b://左
+        coor_temp.setY(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(coor_temp.y()));
+
+        break;
+        case Form_ControlTab::Jog_AxisX_N_b://右
+        coor_temp.setY(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat()+user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(coor_temp.y()));
+         break;
+        case Form_ControlTab::Jog_AxisY_P_b://前
+        coor_temp.setX(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat()+user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(coor_temp.x()));
+         break;
+        case Form_ControlTab::Jog_AxisY_N_b://后
+        coor_temp.setX(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(coor_temp.x()));
+         break;
+        case Form_ControlTab::Jog_AxisZ_P_b://上
+        coor_temp.setZ(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat()+user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(coor_temp.z()));
+         break;
+        case Form_ControlTab::Jog_AxisZ_N_b://下
+        coor_temp.setZ(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(coor_temp.z()));
+         break;
+        case Form_ControlTab::Jog_Home_b:
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(280.80));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(0));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(155));
+        break;
+        case Form_ControlTab::Jog_Halt_b:
+        memset(m_motorApp_callback.loop_count,0,sizeof(m_motorApp_callback.loop_count));//stop
+        m_motorApp_callback.m_Stepper_block_Q->clear();
+        m_motorApp_callback.m_sys_reset = true;
+        return;
+
+        break;
+        default:
+            break;
+    }
+
+    m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat();//300;
+    m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat();//200;
+    m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat();//100;
+    m_motorApp_callback.Planner_BufferLine(m_motorApp_callback.m_ARM_Motion_test.arm,Gcode_segment::No_Mcode);
+    m_motorApp_callback.m_sys_reset = false;
+}
+
+
 void MainFormView::keyPressEvent(QKeyEvent *event){
     if(m_motorApp_callback.input_ptr == NULL){
         return;
@@ -267,9 +348,9 @@ void MainFormView::keyPressEvent(QKeyEvent *event){
         m_motorApp_callback.m_sys_reset = true;
         break;
     case Qt::Key_Control:
-        m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = m_lineEdit_XPos->text().toFloat();//300;
-        m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = m_lineEdit_YPos->text().toFloat();//200;
-        m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = m_lineEdit_ZPos->text().toFloat();//100;
+        m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat();//300;
+        m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat();//200;
+        m_motorApp_callback.m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat();//100;
         m_motorApp_callback.Planner_BufferLine(m_motorApp_callback.m_ARM_Motion_test.arm,Gcode_segment::No_Mcode);
         m_motorApp_callback.m_sys_reset = false;
 //        m_motorApp_callback.start();
@@ -301,36 +382,41 @@ void MainFormView::keyPressEvent(QKeyEvent *event){
             GcodeSendThread->start();
         break;
    case Qt::Key_Q:
-        m_lineEdit_XPos->setText(tr("280.799"));
-        m_lineEdit_YPos->setText(tr("0"));
-        m_lineEdit_ZPos->setText(tr("155"));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(tr("280.799"));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(tr("0"));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(tr("155"));
         break;
     case Qt::Key_A:
         m_motorApp_callback.m_RenewST_ready = true;
         break;
     case Qt::Key_Left://左
-        coor_temp.setY(m_lineEdit_YPos->text().toFloat()-m_lineEdit_Pos_Step->text().toInt());
-        m_lineEdit_YPos->setText(QString("%1").arg(coor_temp.y()));
+        coor_temp.setY(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(coor_temp.y()));
         break;
     case Qt::Key_Right://右
-        coor_temp.setY(m_lineEdit_YPos->text().toFloat()+m_lineEdit_Pos_Step->text().toInt());
-        m_lineEdit_YPos->setText(QString("%1").arg(coor_temp.y()));
+        coor_temp.setY(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat()+user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(coor_temp.y()));
+
         break;
     case Qt::Key_Up://前
-        coor_temp.setX(m_lineEdit_XPos->text().toFloat()+m_lineEdit_Pos_Step->text().toInt());
-        m_lineEdit_XPos->setText(QString("%1").arg(coor_temp.x()));
+        coor_temp.setX(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat()+user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(coor_temp.x()));
+
         break;
     case Qt::Key_Down://后
-        coor_temp.setX(m_lineEdit_XPos->text().toFloat()-m_lineEdit_Pos_Step->text().toInt());
-        m_lineEdit_XPos->setText(QString("%1").arg(coor_temp.x()));
+        coor_temp.setX(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(coor_temp.x()));
+
         break;
     case Qt::Key_Z://上
-        coor_temp.setZ(m_lineEdit_ZPos->text().toFloat()+m_lineEdit_Pos_Step->text().toInt());
-        m_lineEdit_ZPos->setText(QString("%1").arg(coor_temp.z()));
+        coor_temp.setZ(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat()+user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(coor_temp.z()));
+
         break;
     case Qt::Key_X://下
-        coor_temp.setZ(m_lineEdit_ZPos->text().toFloat()-m_lineEdit_Pos_Step->text().toInt());
-        m_lineEdit_ZPos->setText(QString("%1").arg(coor_temp.z()));
+        coor_temp.setZ(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(coor_temp.z()));
+
         break;
     default:
         qDebug() << event->key();

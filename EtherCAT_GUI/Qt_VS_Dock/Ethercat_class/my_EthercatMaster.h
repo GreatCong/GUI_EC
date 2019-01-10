@@ -150,7 +150,7 @@ public:
 
     /* Others */
     char *Master_getAddressBase();
-    QString Master_stateToString(int state);
+    static QString My_EthercatMaster::Master_stateToString(int state);
 
 
     static void My_EthercatMaster:: Master_usSleep(uint32_t usec);

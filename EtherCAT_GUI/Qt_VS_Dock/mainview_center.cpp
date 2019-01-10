@@ -44,6 +44,24 @@ void MainFormView::Init_FrameCenter_Content()
     mtabWeidgetItem_Control->setLayout(user_layout);
     mTabWedget_center->addTab(mtabWeidgetItem_Control,tr("Control"));
 
+    user_form_controlTab = new Form_ControlTab();
+    mtabWeidgetItem_Control->layout()->addWidget(user_form_controlTab);
+    connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_openFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_OpenGcode_clicked()));
+    connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_reloadFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_ReloadGcode_clicked()));
+    connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_SendGcode_clicked()));
+    connect(user_form_controlTab->get_CheckBoxPtr(Form_ControlTab::check_isThetaDis_c),SIGNAL(stateChanged(int)),this,SLOT(controlTab_checkThetaDis_stateChange(int)));
+
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(tr("280.799"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setPlaceholderText(tr("X轴"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(tr("0"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setPlaceholderText(tr("Y轴"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(tr("155"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setPlaceholderText(tr("Z轴"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_Speed_e)->setText(tr("1000"));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_Speed_e)->setPlaceholderText(tr("速度"));
+
+
+#if 0
     QPushButton *button_openGcode = new QPushButton(tr("Open Gcode"));
     connect(button_openGcode,SIGNAL(clicked(bool)),this,SLOT(Control_OpenGcode_clicked()));
     QPushButton *button_reloadGcode = new QPushButton(tr("Reload Gcode"));
@@ -92,7 +110,7 @@ void MainFormView::Init_FrameCenter_Content()
     h_layout_pos->addWidget(new QLabel(tr("速度")));
     h_layout_pos->addWidget(m_lineEdit_Pos_Speed);
     user_layout->addLayout(h_layout_pos,5,0);
-
+#endif
 //    mtabWeidgetItem_Control->layout()->addWidget(button_openGcode);
 //    mtabWeidgetItem_Control->layout()->addWidget(button_reloadGcode);
 //    mtabWeidgetItem_Control->layout()->addWidget(m_lineEdit_GcodePath);
@@ -198,7 +216,7 @@ int MainFormView::Gcode_load(QString &fileName){
 
 //        GCodeItem item;
         gp_t->clearQueue();
-        m_table_Gcode->clearContents();
+        user_form_controlTab->get_TableGcode()->clearContents();
         int line_num = 0;
         QTableWidgetItem *tableItem;
         bool isCommentLine = false;
@@ -235,18 +253,18 @@ int MainFormView::Gcode_load(QString &fileName){
 //                while(!gp_t->getGodeQueue()->empty())
 //                qDebug() << gp_t->getGodeQueue()->dequeue().data_xyz;
                   //添加到table中
-                m_table_Gcode->setRowCount(1+line_num);
+                user_form_controlTab->get_TableGcode()->setRowCount(1+line_num);
                 tableItem = new QTableWidgetItem(QString::number(line_num));
                 tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-                m_table_Gcode->setItem(line_num,0,tableItem);
+                user_form_controlTab->get_TableGcode()->setItem(line_num,0,tableItem);
 
                 tableItem = new QTableWidgetItem(trimmed);
                 tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-                m_table_Gcode->setItem(line_num,1,tableItem);
+                user_form_controlTab->get_TableGcode()->setItem(line_num,1,tableItem);
 
                 tableItem = new QTableWidgetItem(tr("Ready"));
                 tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-                m_table_Gcode->setItem(line_num++,2,tableItem);
+                user_form_controlTab->get_TableGcode()->setItem(line_num++,2,tableItem);
 
 //                item.command = trimmed;
 //                item.state = GCodeItem::InQueue;
@@ -266,18 +284,18 @@ int MainFormView::Gcode_load(QString &fileName){
 
         m_GcodeSegment_Q = gp_t->getGodeQueue();//传递指针
         //加一行，表示end
-        m_table_Gcode->setRowCount(1+line_num);
+        user_form_controlTab->get_TableGcode()->setRowCount(1+line_num);
         tableItem = new QTableWidgetItem(QString::number(line_num));
         tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-        m_table_Gcode->setItem(line_num,0,tableItem);
+        user_form_controlTab->get_TableGcode()->setItem(line_num,0,tableItem);
 
         tableItem = new QTableWidgetItem(tr("End"));
         tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-        m_table_Gcode->setItem(line_num,1,tableItem);
+        user_form_controlTab->get_TableGcode()->setItem(line_num,1,tableItem);
 
         tableItem = new QTableWidgetItem(tr("Ready"));
         tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-        m_table_Gcode->setItem(line_num++,2,tableItem);
+        user_form_controlTab->get_TableGcode()->setItem(line_num++,2,tableItem);
 
         Gcode_segment segment;//插入M代码，让行对应
         segment.line = gp_t->getGodeQueue()->size();
@@ -333,7 +351,7 @@ void MainFormView::Control_OpenGcode_clicked(){
 //        qDebug() << fileInfo.fileName() <<fileInfo.absolutePath();
         m_GcodePath = fileInfo.absolutePath();
 
-        m_lineEdit_GcodePath->setText(fileName);
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Gcode_filePath_e)->setText(fileName);
         m_bottomText->appendPlainText(tr("OPen Gcode file OK!"));
     }
 
@@ -341,20 +359,41 @@ void MainFormView::Control_OpenGcode_clicked(){
 }
 
 void MainFormView::Control_SendGcode_clicked(){
-
+   GcodeSendThread->start();//开始解析G代码线程
+   m_motorApp_callback.m_RenewST_ready = true;
 }
 
 void MainFormView::MotorCallback_GcodeLineChange(int line){
 //    qDebug() << line;
     //实现滚动效果
-    m_table_Gcode->selectRow(line);
-    m_table_Gcode->scrollTo(m_table_Gcode->model()->index(line,QTableView::EnsureVisible));
+    user_form_controlTab->get_TableGcode()->selectRow(line);
+    user_form_controlTab->get_TableGcode()->scrollTo(user_form_controlTab->get_TableGcode()->model()->index(line,QTableView::EnsureVisible));
     //改变状态
-    int current_row = m_table_Gcode->currentRow();
+    int current_row = user_form_controlTab->get_TableGcode()->currentRow();
     QTableWidgetItem *tableItem = new QTableWidgetItem(tr("OK"));
     tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-    m_table_Gcode->setItem(current_row,2,tableItem);
+    user_form_controlTab->get_TableGcode()->setItem(current_row,2,tableItem);
 
+}
+
+void MainFormView::MotorCallback_GcodePositionChange(QVector3D pos){
+    if(!controlTab_isTheta_display){
+        user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_X,pos.x());
+        user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Y,pos.y());
+        user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Z,pos.z());
+    }
+}
+
+void MainFormView::MotorCallback_GcodeThetaChange(QVector3D theta){
+    if(controlTab_isTheta_display){
+        user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_X,theta.x());
+        user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Y,theta.y());
+        user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Z,theta.z());
+    }
+}
+
+void MainFormView::controlTab_checkThetaDis_stateChange(int arg){
+    controlTab_isTheta_display = arg;
 }
 
 /************  Slots end ***************/
