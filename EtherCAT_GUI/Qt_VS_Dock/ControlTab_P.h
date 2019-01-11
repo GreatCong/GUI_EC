@@ -27,13 +27,14 @@ private:
 
     QThread *GcodeSendThread;
     bool controlTab_isTheta_display;
+    QString m_settingPath;
 
     int Gcode_load(QString &fileName);
     void Set_BottomMessage(QString message);
     void Set_StatusMessage(QString message, int interval);
     void Set_MasterStop();
 
-
+protected:
     int Load_setting(const QString &path);
     int Save_setting(const QString &path);
 signals:

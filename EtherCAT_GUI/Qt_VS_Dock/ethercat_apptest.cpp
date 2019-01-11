@@ -22,9 +22,9 @@ void CALLBACK TimerCallBack()//回调函数
     MainFormView *t = reinterpret_cast<MainFormView*>(user);//强制转换
 
     static volatile int wkc;
-    int expectedWKC = t->get_UserGeneralTab()->master->Master_get_expectedWKC();
+    int expectedWKC = t->get_MasterPtr()->Master_get_expectedWKC();
      //t->m_timer_advanced->is_enableCallBack = false;//防止多次并发
-     int state = t->get_UserGeneralTab()->master->Master_readState(0);
+     int state = t->get_MasterPtr()->Master_readState(0);
      //qDebug() << user_form_generalTab->master->Master_stateToString(state);
      if(state == My_EthercatMaster::STATE_OPERATIONAL){
          if(wkc >= expectedWKC){//第一次运行会出现这个问题
@@ -36,14 +36,16 @@ void CALLBACK TimerCallBack()//回调函数
          }
      }
      else{
-         qDebug() << My_EthercatMaster::Master_stateToString(state);
-         t->get_UserGeneralTab()->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(state));
-         t->get_UserGeneralTab()->master->Master_writeState(0,My_EthercatMaster::STATE_OPERATIONAL);
-         t->get_UserGeneralTab()->master->Master_CheckState(0,My_EthercatMaster::STATE_OPERATIONAL,1000);
+//         qDebug() << My_EthercatMaster::Master_stateToString(state);
+//         t->general_xx->Master_UI_Loop(state);
+         t->get_MasterPtr()->Master_writeState(0,My_EthercatMaster::STATE_OPERATIONAL);
+         t->get_MasterPtr()->Master_CheckState(0,My_EthercatMaster::STATE_OPERATIONAL,1000);
      }
+     //NOTE:这里的UI,会不会影响实时性，待测试
+     t->general_xx->Master_UI_Loop(state);
      //user_form_generalTab->master->Master_process_loop(My_EthercatMaster::STATE_OPERATIONAL,1000);//设置5ms的检查延时
-     t->get_UserGeneralTab()->master->Master_processData_send();
-     wkc= t->get_UserGeneralTab()->master->Master_processData_receive(5000);//短了wkc<expectedWKC
+     t->get_MasterPtr()->Master_processData_send();
+     wkc= t->get_MasterPtr()->Master_processData_receive(5000);//短了wkc<expectedWKC
      //t->m_timer_advanced->is_enableCallBack = true;
 
 //    static int i;
@@ -64,7 +66,7 @@ int MainFormView::Master_scan(){
     Init_FrameLeft_Content();//重新初始化设备树
 
     mDeviceTree->Add_LeftTree_Master();
-    if(user_form_generalTab->master->m_adapterNameSelect.isEmpty()){
+    if(m_master->m_adapterNameSelect.isEmpty()){
         mTabWedget_center->show();
         m_widget_slaveMSG->hide();
         return -1;
@@ -73,7 +75,7 @@ int MainFormView::Master_scan(){
 
     MMTimer_RT::Delay_MSec(300);//需要无阻塞的延时 500ms
 
-    state = user_form_generalTab->master->Master_scan();
+    state = m_master->Master_scan();
 
     if(state == My_EthercatMaster::ERROR_NO_SLAVE){
         ProcessBar_stopEvent();//不出现processBar
@@ -86,9 +88,9 @@ int MainFormView::Master_scan(){
 //        int slave_count = 0;
 //        int slaveItem_count = 0;
 //        mDeviceTree->Add_LeftTree_Master();
-        control_xx->get_CallbackPtr()->m_slaveCount = user_form_generalTab->master->Master_getSlaveCount();
+        control_xx->get_CallbackPtr()->m_slaveCount = m_master->Master_getSlaveCount();
 
-        foreach (Ethercat_Slave slave, user_form_generalTab->master->slaves_list) {
+        foreach (Ethercat_Slave slave, m_master->slaves_list) {
             //qDebug() << slave.dump_data(true);
             //TextList_append(m_bottomText,slave.dump_data(true));
             //m_tableView_slaveMSG->append_RawData(slave_count++,slave.dump_data());
@@ -109,8 +111,7 @@ int MainFormView::Master_scan(){
         }
 
         //设置EtherCAT状态显示
-        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
-        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
+        general_xx->Master_UI_Scan();
     }
 
     return 0;
@@ -121,7 +122,7 @@ int MainFormView::Master_scan(){
 ///
 int MainFormView::Master_run(){
 
-    if(user_form_generalTab->master->Master_getSlaveCount()>0){
+    if(m_master->Master_getSlaveCount()>0){
         //设置10ms，有时候还会超时，并非严格的10ms周期
 //        m_timer_advanced->setInterval(10);//10ms
 //        m_timer_advanced->start();
@@ -137,12 +138,11 @@ int MainFormView::Master_run(){
 //        }
         m_status_label->setText(tr("Run Mode"));
 
-        user_form_generalTab->master->Master_run();
-        control_xx->get_CallbackPtr()->Master_setAdressBase(user_form_generalTab->master->Master_getAddressBase());
+        m_master->Master_run();
+        control_xx->get_CallbackPtr()->Master_setAdressBase(m_master->Master_getAddressBase());
         control_xx->get_CallbackPtr()->Master_AppStart_callback();
 
-        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
-        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
+        general_xx->Master_UI_RUn();
 
 
         //最好放在后面，否则会崩溃
@@ -167,21 +167,19 @@ int MainFormView::Master_run(){
 ///
 int MainFormView::Master_stop(){
 
-    if(user_form_generalTab->master->Master_getSlaveCount()>0){
+    if(m_master->Master_getSlaveCount()>0){
         //m_timer_advanced->stop();
         if(RTtimer_User.isRun){
            TestKillTimer(RTtimer_User.Timer_id);
            RTtimer_User.isRun = false;
         }
 
-        user_form_generalTab->master->Master_stop();
+        m_master->Master_stop();
         control_xx->get_CallbackPtr()->Master_AppStop_callback();
         m_status_label->setText(tr("Ready"));
 
         //设置状态
-        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
-        user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
-
+        general_xx->Master_UI_Stop();
     }
     else{
          QMessageBox::warning(this,tr("Ethercat warning"),tr("No Slaves!Please scan slaves first"));
@@ -198,9 +196,9 @@ int MainFormView::Master_setting(){
 }
 
 int MainFormView::Master_exit(){
-  if(user_form_generalTab->master->Master_getSlaveCount()>0){
+  if(m_master->Master_getSlaveCount()>0){
     Master_stop();
-    user_form_generalTab->master->Master_close(true);
+    m_master->Master_close(true);
   }
 
   return 0;
@@ -216,9 +214,10 @@ void MainFormView::EthercatApp_init(){
 //    //    m_timer_advanced->setTimerType(Qt::PreciseTimer);//设定高精度定时器
 //    connect(m_timer_advanced,SIGNAL(timeout()),this,SLOT(mTimerAdvanced_timeout()));
 
+    this->Master_attach(general_xx->get_MasterPtr());
     //设置master check thread,可以防止运行状态时，突然切换到安全运行状态
-    user_form_generalTab->master->Master_InitCheckThread();
-    user_form_generalTab->master->Master_isCheckThread(true);
+    m_master->Master_InitCheckThread();
+    m_master->Master_isCheckThread(true);
 
 }
 
@@ -232,7 +231,9 @@ void MainFormView::EthercatApp_destroy(){
        RTtimer_User.isRun = false;
     }
 
-    if(user_form_generalTab->master->Master_getSlaveCount()>0){
-       user_form_generalTab->master->Master_close(true);
+    if(m_master->Master_getSlaveCount()>0){
+       m_master->Master_close(true);
     }
+
+    this->Master_dettach();
 }

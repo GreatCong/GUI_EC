@@ -72,7 +72,8 @@ SOURCES += \
     Ethercat_class/Ethercat_Utile.cpp \
     Ethercat_class/RTTimer.cpp \
     Form_ControlTab.cpp \
-    ControlTab_P.cpp
+    ControlTab_P.cpp \
+    GeneralTab_P.cpp
 
 HEADERS += \
     $$PWD/Ethercat_class/my_ethercatmaster.h \
@@ -88,7 +89,8 @@ HEADERS += \
     Ethercat_class/RTTimer.h \
     Form_ControlTab.h \
     ControlTab_P.h \
-    EtherCAT_UserApp.h
+    EtherCAT_UserApp.h \
+    GeneralTab_P.h
 
 INCLUDEPATH += $$PWD/Ethercat_class
 INCLUDEPATH += $$PWD/tables

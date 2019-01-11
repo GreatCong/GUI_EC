@@ -24,6 +24,7 @@
 #include "my_Table_SlaveMSG.h"
 
 #include "ControlTab_P.h"
+#include "GeneralTab_P.h"
 
 #ifdef _MSC_VER //windows
 #include "MMTimer_RTwin.h"
@@ -82,6 +83,9 @@ private:
     /* Ethercat End */
 
     /*   others  */
+    My_EthercatMaster *m_master;
+    void Master_attach(My_EthercatMaster *master);
+    void Master_dettach();
     /* others End */
 
     /*   Temp  */
@@ -111,7 +115,7 @@ private:
     void EthercatApp_destroy();
 
     /* 测试用的 */
-    Form_GeneralTab *user_form_generalTab;
+//    Form_GeneralTab *user_form_generalTab;
     QTimer *mm_time;
     int timer_num;
 
@@ -125,6 +129,8 @@ public:
     QLabel *m_status_label;
 
     ControlTab_P *control_xx;
+    GeneralTab_P *general_xx;
+    My_EthercatMaster *get_MasterPtr();
 
     typedef enum{
         Frame_left_f,
@@ -152,9 +158,9 @@ public:
     int Load_setting(const QString &path);
     int Save_setting(const QString &path);
 
-    Form_GeneralTab *get_UserGeneralTab(){
-        return user_form_generalTab;
-    }
+//    Form_GeneralTab *get_UserGeneralTab(){
+//        return user_form_generalTab;
+//    }
 private slots:
     void mDeviceTree_customContextMenuRequested(const QPoint &pos);
     void mDeviceTree_DoubleClicked(const QModelIndex);

@@ -30,8 +30,9 @@ void MainFormView::Init_FrameCenter_Content()
 //    h_layout->addWidget(xx2,1);
 //    mtabWeidgetItem_General->setLayout(h_layout);
 
-    user_form_generalTab = new Form_GeneralTab();
-    mtabWeidgetItem_General->layout()->addWidget(user_form_generalTab);
+    general_xx = new GeneralTab_P();
+    mtabWeidgetItem_General->layout()->addWidget(general_xx->get_UIWidgetPtr());
+    general_xx->Init_Cores();
 
 
     mtabWeidgetItem_Messure = new QWidget();

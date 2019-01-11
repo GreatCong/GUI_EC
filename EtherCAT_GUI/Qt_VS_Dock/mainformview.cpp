@@ -34,9 +34,25 @@ MainFormView::MainFormView(QWidget *parent) :
 MainFormView::~MainFormView()
 {
    this->EthercatApp_destroy();
-   user_form_generalTab->deleteLater();
+//   user_form_generalTab->deleteLater();
+    general_xx->Destroy_Cores();
    control_xx->Destroy_Cores();
-    delete ui;
+   delete ui;
+}
+
+void MainFormView::Master_attach(My_EthercatMaster *master)
+{
+    m_master = master;
+}
+
+void MainFormView::Master_dettach()
+{
+    m_master = nullptr;
+}
+
+My_EthercatMaster *MainFormView::get_MasterPtr()
+{
+    return m_master;
 }
 
 ///
@@ -97,13 +113,13 @@ int MainFormView::Load_setting(const QString &path){
             QMessageBox::warning(this,tr("Path Error!"),"PluginPath is Invalid,loading default path..");
         }
 
-        QString master_adapterName = setting.value("EtherCAT/Adapter_Name").toString();
-        QString master_adapterDesc = setting.value("EtherCAT/Adapter_Desc").toString();
-        user_form_generalTab->setMaster_adapterName(master_adapterName);
-        user_form_generalTab->setMaster_adapterDesc(master_adapterDesc);
-        //bind to master
-        user_form_generalTab->master->m_adapterDescSelect = master_adapterDesc;
-        user_form_generalTab->master->m_adapterNameSelect = master_adapterName;
+//        QString master_adapterName = setting.value("EtherCAT/Adapter_Name").toString();
+//        QString master_adapterDesc = setting.value("EtherCAT/Adapter_Desc").toString();
+//        general_xx->get_UIWidgetPtr()->setMaster_adapterName(master_adapterName);
+//        general_xx->get_UIWidgetPtr()->setMaster_adapterDesc(master_adapterDesc);
+//        //bind to master
+//        general_xx->get_UIWidgetPtr()->master->m_adapterDescSelect = master_adapterDesc;
+//        general_xx->get_UIWidgetPtr()->master->m_adapterNameSelect = master_adapterName;
 //        qDebug() << m_GcodePath<<m_pluginDir;
     }
     else{
@@ -112,8 +128,6 @@ int MainFormView::Load_setting(const QString &path){
 //        qDebug() << "Load default setting!";
         Set_StatusMessage(tr("Load default setting!"),3000);
     }
-
-
 
     return 0;
 
@@ -134,11 +148,11 @@ int MainFormView::Save_setting(const QString &path){
 //   setting.setValue("remeber",true);
    setting.endGroup();//节点结束
 
-   setting.beginGroup(tr("EtherCAT"));
-   setting.setValue("Adapter_Name",user_form_generalTab->getMaster_adapterName());//设置key和value，也就是参数和值
-   setting.setValue("Adapter_Desc",user_form_generalTab->getMaster_adapterDesc());
-//   setting.setValue("remeber",true);
-   setting.endGroup();//节点结束
+//   setting.beginGroup(tr("EtherCAT"));
+//   setting.setValue("Adapter_Name",general_xx->get_UIWidgetPtr()->getMaster_adapterName());//设置key和value，也就是参数和值
+//   setting.setValue("Adapter_Desc",general_xx->get_UIWidgetPtr()->getMaster_adapterDesc());
+////   setting.setValue("remeber",true);
+//   setting.endGroup();//节点结束
 
     return 0;
 }

@@ -42,11 +42,11 @@ void Form_ControlTab::Init_Cores(){
     get_TableGcode()->verticalHeader()->setVisible(false); //设置垂直头不可见
 
     ui->lcdNumber_Axis_X->setDecMode();
-    ui->lcdNumber_Axis_X->setDigitCount(10);//设置显示位数
+    ui->lcdNumber_Axis_X->setDigitCount(8);//设置显示位数
     ui->lcdNumber_Axis_Y->setDecMode();
-    ui->lcdNumber_Axis_Y->setDigitCount(10);
+    ui->lcdNumber_Axis_Y->setDigitCount(8);
     ui->lcdNumber_Axis_Z->setDecMode();
-    ui->lcdNumber_Axis_Z->setDigitCount(10);
+    ui->lcdNumber_Axis_Z->setDigitCount(8);
 
 }
 

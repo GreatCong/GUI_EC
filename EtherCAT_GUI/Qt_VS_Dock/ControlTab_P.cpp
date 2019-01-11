@@ -19,11 +19,14 @@ ControlTab_P::ControlTab_P(QObject *parent) : QObject(parent)
 
    set_UIWidgetPtr(user_form_controlTab);
    set_CallbackPtr(m_motorApp_callback);
+
 }
 
 void ControlTab_P::Init_Cores()
 {
-    Load_setting("./config_User.ini");//加载设置
+    m_settingPath = "./config_User.ini";
+    Load_setting(m_settingPath);//加载设置
+    m_motorApp_callback->m_slaveCount = 0;//赋初值
 
     controlTab_isTheta_display = user_form_controlTab->get_CheckBoxPtr(Form_ControlTab::check_isThetaDis_c)->checkState();
 
@@ -59,7 +62,7 @@ void ControlTab_P::Init_Cores()
 
 void ControlTab_P::Destroy_Cores()
 {
-   Save_setting("./config_User.ini");//保存设置
+   Save_setting(m_settingPath);//保存设置
 }
 
 /*********************** Operation *************************/

@@ -34,6 +34,8 @@ public:
 protected:
     virtual void set_UIWidgetPtr(QWidget *widget) {_UIWidget = widget;}
     virtual void set_CallbackPtr(Ethercat_Callback *callback) { _EC_callback = callback;}
+    virtual int Load_setting(const QString &path) { Q_UNUSED(path); return 0; }
+    virtual int Save_setting(const QString &path) { Q_UNUSED(path); return 0; }
 
     QWidget *_UIWidget;
     Ethercat_Callback *_EC_callback;

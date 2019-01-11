@@ -100,13 +100,13 @@ void MainFormView::mDeviceTree_DoubleClicked(const QModelIndex index)
             m_widget_slaveMSG->hide();
         }
         else if(mDeviceTree->isSlave(var.toInt())){
-            int slave_count = user_form_generalTab->master->Master_getSlaveCount();
+            int slave_count = m_master->Master_getSlaveCount();
             if(slave_count>0){
                 m_tableView_slaveMSG->clearContents();
                 m_tableView_slaveItemMSG->clearContents();
                 int slave_index = var.toInt() - MARK_SLAVE-1;
                 int slaveItem_count = 0;
-                Ethercat_Slave slave = user_form_generalTab->master->slaves_list.at(slave_index);
+                Ethercat_Slave slave = m_master->slaves_list.at(slave_index);
                 m_tableView_slaveMSG->append_RawData(slave_index,slave.dump_data());
 
                 foreach (Ethercat_SlaveMSG_Item input, slave.input_list) {
