@@ -5,6 +5,8 @@
 #include <QtPlugin>
 #include <QObject>
 
+#include "Commmon/EtherCAT_Message.h"
+
 class Ethercat_Callback
 {
 public:
@@ -22,30 +24,30 @@ protected:
     int m_slaveCount;
 };
 
-class EtherCAT_Message : public QObject
-{
-    Q_OBJECT
-public:
-//    explicit EtherCAT_Message(QObject *parent = nullptr);
-    void Set_StatusMessage(QString message, int interval)
-    {
-        emit StatusMessage_change(message,interval);//发出自定义信号
-    }
+//class EtherCAT_Message : public QObject
+//{
+//    Q_OBJECT
+//public:
+////    explicit EtherCAT_Message(QObject *parent = nullptr);
+//    void Set_StatusMessage(QString message, int interval)
+//    {
+//        emit StatusMessage_change(message,interval);//发出自定义信号
+//    }
 
-    void Set_BottomMessage(QString message)
-    {
-        emit BottomMessage_change(message);//发出自定义信号
-    }
+//    void Set_BottomMessage(QString message)
+//    {
+//        emit BottomMessage_change(message);//发出自定义信号
+//    }
 
-    void Set_MasterStop()
-    {
-        emit MasterStop_Signal();//发出自定义信号
-    }
-signals:
-    void StatusMessage_change(QString message,int interval);//状态栏信息
-    void BottomMessage_change(QString message);//bottom Text message
-    void MasterStop_Signal();//stop master
-};
+//    void Set_MasterStop()
+//    {
+//        emit MasterStop_Signal();//发出自定义信号
+//    }
+//signals:
+//    void StatusMessage_change(QString message,int interval);//状态栏信息
+//    void BottomMessage_change(QString message);//bottom Text message
+//    void MasterStop_Signal();//stop master
+//};
 
 
 //此对象主要包含3个部分 界面UI、操作回调callback和消息对象

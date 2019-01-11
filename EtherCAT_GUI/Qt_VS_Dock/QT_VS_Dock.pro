@@ -56,10 +56,7 @@ SOURCES += \
     $$PWD/Ethercat_class/my_ethercatmaster.cpp \
     $$PWD/Ethercat_class/MMTimer_RTwin.cpp \
     $$PWD/Ethercat_class/MMTimer_RT.cpp \
-    My_MotorApp_Callback.cpp \
     $$PWD/Ethercat_class/master_check.c \
-    GcodePreprocessorUtils.cpp \
-    GcodeParser.cpp \
     mainview_left.cpp \
     mianview_right.cpp \
     mainview_center.cpp \
@@ -71,24 +68,17 @@ SOURCES += \
     thread_test.cpp \
     Ethercat_class/Ethercat_Utile.cpp \
     Ethercat_class/RTTimer.cpp \
-    Form_ControlTab.cpp \
-    ControlTab_P.cpp \
     GeneralTab_P.cpp
 
 HEADERS += \
     $$PWD/Ethercat_class/my_ethercatmaster.h \
     $$PWD/Ethercat_class/MMTimer_RTwin.h \
     $$PWD/Ethercat_class/MMTimer_RT.h \
-    My_MotorApp_Callback.h \
     $$PWD/Ethercat_class/master_check.h \
-    GcodePreprocessorUtils.h \
-    GcodeParser.h \
     tables/gcodetablemodel.h \
     thread_test.h \
     Ethercat_class/Ethercat_Utile.h \
     Ethercat_class/RTTimer.h \
-    Form_ControlTab.h \
-    ControlTab_P.h \
     EtherCAT_UserApp.h \
     GeneralTab_P.h
 
@@ -112,7 +102,6 @@ HEADERS += \
     mainformview.h \
     my_treeview_device.h \
     user_common.h \
-    my_UserAppWidge.h \
     my_lisetview_plugin.h \
     form_generaltab.h \
     my_Table_SlaveMSG.h
@@ -120,8 +109,7 @@ HEADERS += \
 FORMS += \
         mainwindow.ui \
     mainformview.ui \
-    form_GeneralTab.ui \
-    Form_ControlTab.ui
+    form_GeneralTab.ui
 
 RESOURCES += \
     res_icons.qrc

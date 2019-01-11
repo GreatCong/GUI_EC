@@ -55,7 +55,36 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2"/>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLineEdit" name="lineEdit_Tittle">
+           <property name="font">
+            <font>
+             <family>Agency FB</family>
+             <pointsize>18</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>三轴机械臂EtherCAT应用</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -82,6 +111,18 @@
          <item>
           <widget class="QWidget" name="widget" native="true">
            <layout class="QGridLayout" name="gridLayout">
+            <property name="leftMargin">
+             <number>1</number>
+            </property>
+            <property name="topMargin">
+             <number>1</number>
+            </property>
+            <property name="rightMargin">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>1</number>
+            </property>
             <item row="0" column="0">
              <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,4">
               <item>
@@ -158,7 +199,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <property name="leftMargin">
-       <number>1</number>
+       <number>9</number>
       </property>
       <property name="topMargin">
        <number>1</number>
@@ -284,11 +325,23 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>218</width>
+           <width>210</width>
            <height>467</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="leftMargin">
+           <number>1</number>
+          </property>
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>1</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QWidget" name="widget_2" native="true">
             <layout class="QGridLayout" name="gridLayout_4">
@@ -310,28 +363,28 @@
                 <string>Parameter</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
-                <item row="3" column="0">
+                <item row="3" column="1">
                  <widget class="QLineEdit" name="lineEdit_PosZ">
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(80, 80, 80);</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="4" column="1">
                  <widget class="QLineEdit" name="lineEdit_jogSpeed">
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(80, 80, 80);</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
+                <item row="0" column="1">
                  <widget class="QCheckBox" name="checkBox_Is_Theta_Display">
                   <property name="text">
                    <string>is_Theta_Display</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
+                <item row="2" column="1">
                  <widget class="QLineEdit" name="lineEdit_PosY">
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(80, 80, 80);
@@ -339,11 +392,51 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
+                <item row="1" column="1">
                  <widget class="QLineEdit" name="lineEdit_posX">
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(80, 80, 80);
 </string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_6">
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Z</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_8">
+                  <property name="text">
+                   <string>Speed</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -415,7 +508,7 @@
                    <string>Y_U</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="res_icons.qrc">
+                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Up.png</normaloff>:/Control/Resource/Control/Dir_Up.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -444,7 +537,7 @@
                    <string>Z_D</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="res_icons.qrc">
+                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Down.png</normaloff>:/Control/Resource/Control/Dir_Down.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -486,7 +579,7 @@
                    <string>Z_U</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="res_icons.qrc">
+                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Up.png</normaloff>:/Control/Resource/Control/Dir_Up.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -515,7 +608,7 @@
                    <string>X_U</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="res_icons.qrc">
+                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Left.png</normaloff>:/Control/Resource/Control/Dir_Left.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -544,7 +637,7 @@
                    <string>Y_D</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="res_icons.qrc">
+                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Down.png</normaloff>:/Control/Resource/Control/Dir_Down.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -573,7 +666,7 @@
                    <string>X_D</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="res_icons.qrc">
+                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Right.png</normaloff>:/Control/Resource/Control/Dir_Right.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -623,7 +716,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="res_icons.qrc"/>
+  <include location="../QT_VS_Dock/res_icons.qrc"/>
  </resources>
  <connections/>
 </ui>

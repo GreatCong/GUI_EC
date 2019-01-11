@@ -40,17 +40,17 @@ void MainFormView::Init_FrameCenter_Content()
     mtabWeidgetItem_Messure->setLayout(user_layout);
     mTabWedget_center->addTab(mtabWeidgetItem_Messure,tr("Messure"));
 
-    mtabWeidgetItem_Control = new QWidget();
-    user_layout = new QGridLayout();
-    mtabWeidgetItem_Control->setLayout(user_layout);
-    mTabWedget_center->addTab(mtabWeidgetItem_Control,tr("Control"));
+//    mtabWeidgetItem_Control = new QWidget();
+//    user_layout = new QGridLayout();
+//    mtabWeidgetItem_Control->setLayout(user_layout);
+//    mTabWedget_center->addTab(mtabWeidgetItem_Control,tr("Control"));
 
-    control_xx = new ControlTab_P();
-    mtabWeidgetItem_Control->layout()->addWidget(control_xx->get_UIWidgetPtr());
-    control_xx->Init_Cores();
-    connect(control_xx,SIGNAL(MasterStop_Signal()),this,SLOT(Control_MasterStop_Signal()));
-    connect(control_xx,SIGNAL(StatusMessage_change(QString,int)),this,SLOT(Control_StatusMessage_change(QString,int)));
-    connect(control_xx,SIGNAL(BottomMessage_change(QString)),this,SLOT(Control_BottomMessage_change(QString)));
+//    control_xx = new ControlTab_P();
+//    mtabWeidgetItem_Control->layout()->addWidget(control_xx->get_UIWidgetPtr());
+//    control_xx->Init_Cores();
+//    connect(control_xx,SIGNAL(MasterStop_Signal()),this,SLOT(Control_MasterStop_Signal()));
+//    connect(control_xx,SIGNAL(StatusMessage_change(QString,int)),this,SLOT(Control_StatusMessage_change(QString,int)));
+//    connect(control_xx,SIGNAL(BottomMessage_change(QString)),this,SLOT(Control_BottomMessage_change(QString)));
 
     mtabWeidgetItem_UserApps = new QWidget();
     user_layout = new QGridLayout();

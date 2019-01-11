@@ -1,24 +1,32 @@
-﻿#ifndef CONTROLTAB_P_H
-#define CONTROLTAB_P_H
+﻿#ifndef CONTROL_PLUGIN_H
+#define CONTROL_PLUGIN_H
+
+#include <QGenericPlugin>
+#include "Commmon/EtherCAT_UserApp.h"
 
 #include <QObject>
-
 #include "My_MotorApp_Callback.h"
 #include "Form_ControlTab.h"
 
-//此对象主要包含2个部分 界面UI和操作回调callback
-class ControlTab_P : public QObject,public EtherCAT_UserApp
+class Control_plugin : public QGenericPlugin,EtherCAT_UserApp
 {
     Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID UserApp_iid FILE "Control_plugins.json")
+#endif // QT_VERSION >= 0x050000
+
+    Q_INTERFACES(EtherCAT_UserApp)
+
 public:
-    explicit ControlTab_P(QObject *parent = nullptr);
-public:
+    Control_plugin(QObject *parent = 0);
+    QObject *create(const QString &name, const QString &spec);
     virtual void Init_Cores();
     virtual void Destroy_Cores();
 private:
 
     Form_ControlTab *user_form_controlTab;
     My_MotorApp_Callback *m_motorApp_callback;//Ethercat应用回调
+    EtherCAT_Message *m_messageObj;
 
     QQueue<Gcode_segment> *m_GcodeSegment_Q;
     GcodeParser *gp_t;
@@ -38,9 +46,9 @@ protected:
     int Load_setting(const QString &path);
     int Save_setting(const QString &path);
 signals:
-    void StatusMessage_change(QString message,int interval);//状态栏信息
-    void BottomMessage_change(QString message);//bottom Text message
-    void MasterStop_Signal();//stop master
+//    void StatusMessage_change(QString message,int interval);//状态栏信息
+//    void BottomMessage_change(QString message);//bottom Text message
+//    void MasterStop_Signal();//stop master
 public slots:
 
 private slots:
@@ -59,4 +67,4 @@ private slots:
     void ControlTab_keyPressEvent(QKeyEvent *event);
 };
 
-#endif // CONTROLTAB_P_H
+#endif // USERAPP_PLUGIN_H

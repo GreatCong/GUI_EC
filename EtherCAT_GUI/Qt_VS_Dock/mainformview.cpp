@@ -18,6 +18,9 @@ MainFormView::MainFormView(QWidget *parent) :
     this->Init_TestCores();//测试的对象初始化
     this->EthercatApp_init();   
 
+    plugin_userApps = nullptr;
+    m_Plugin_Loader = nullptr;
+
 
 //    thread_test *xx = new thread_test();
 //    thread = new QThread();
@@ -36,7 +39,10 @@ MainFormView::~MainFormView()
    this->EthercatApp_destroy();
 //   user_form_generalTab->deleteLater();
     general_xx->Destroy_Cores();
-   control_xx->Destroy_Cores();
+    if(plugin_userApps){
+        plugin_userApps->Destroy_Cores();
+    }
+
    delete ui;
 }
 
@@ -235,10 +241,10 @@ int MainFormView::LoadPlugins()
                qDebug() << json.value("dependencies").toArray().toVariantList();
 
                // 访问感兴趣的接口
-               My_UserAppWidget *userApps = qobject_cast<My_UserAppWidget *>(pPlugin);
+               EtherCAT_UserApp *userApps = qobject_cast<EtherCAT_UserApp *>(pPlugin);
                if (userApps != Q_NULLPTR) {
-                   userApps->Init_Apps();
-                   mtabWeidgetItem_UserApps->layout()->addWidget(userApps->getWidget());
+                   userApps->Init_Cores();
+                   mtabWeidgetItem_UserApps->layout()->addWidget(userApps->get_UIWidgetPtr());
                } else {
                    qWarning() << "qobject_cast falied";
                }
@@ -259,18 +265,44 @@ bool MainFormView::LoadPlugins(const QString &fileName)
 {
     QDir pluginsDir(m_pluginDir);
 
-    QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+    if(plugin_userApps){//如果不为空
+        plugin_userApps->Destroy_Cores();
+        if(plugin_userApps->get_MessageObj()){//有消息响应
+            disconnect(plugin_userApps->get_MessageObj(),SIGNAL(MasterStop_Signal()),this,SLOT(Control_MasterStop_Signal()));
+            disconnect(plugin_userApps->get_MessageObj(),SIGNAL(StatusMessage_change(QString,int)),this,SLOT(Control_StatusMessage_change(QString,int)));
+            disconnect(plugin_userApps->get_MessageObj(),SIGNAL(BottomMessage_change(QString)),this,SLOT(Control_BottomMessage_change(QString)));
+        }
+
+        clearLayout(mtabWeidgetItem_UserApps->layout());//清除layout
+        m_Plugin_Loader->unload();//卸载动态库
+        delete m_Plugin_Loader;
+
+        plugin_userApps = nullptr;
+    }
+
+    m_Plugin_Loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
     // 返回插件的根组件对象
-    QObject *pPlugin = loader.instance();
+    QObject *pPlugin = m_Plugin_Loader->instance();
     if (pPlugin != Q_NULLPTR) {
        // 访问感兴趣的接口
-       My_UserAppWidget *userApps = qobject_cast<My_UserAppWidget *>(pPlugin);
-       if (userApps != Q_NULLPTR) {
-           userApps->Init_Apps();
-           mtabWeidgetItem_UserApps->layout()->addWidget(userApps->getWidget());
+       plugin_userApps = qobject_cast<EtherCAT_UserApp *>(pPlugin);
+       if (plugin_userApps != Q_NULLPTR) {
+           plugin_userApps->Init_Cores();
+           mtabWeidgetItem_UserApps->layout()->addWidget(plugin_userApps->get_UIWidgetPtr());
+           if(plugin_userApps->get_MessageObj()){//有消息响应就连接信号槽
+               connect(plugin_userApps->get_MessageObj(),SIGNAL(MasterStop_Signal()),this,SLOT(Control_MasterStop_Signal()));
+               connect(plugin_userApps->get_MessageObj(),SIGNAL(StatusMessage_change(QString,int)),this,SLOT(Control_StatusMessage_change(QString,int)));
+               connect(plugin_userApps->get_MessageObj(),SIGNAL(BottomMessage_change(QString)),this,SLOT(Control_BottomMessage_change(QString)));
+
+               //显示UI
+               mTabWedget_center->show();
+               m_widget_slaveMSG->hide();
+               mTabWedget_center->setCurrentIndex(2);//显示自定义界面
+           }
        } else {
            //qWarning() << "qobject_cast falied";
            m_bottomText->appendPlainText(tr("qobject_cast falied"));
+           Master_exit();
            return false;
        }
     }
@@ -311,6 +343,8 @@ int MainFormView::ScanPlugins(const QString &plugin_dir)
                item->plugin_jsonMSG = loader.metaData().value("MetaData").toObject();
                m_pluginList->addItem(item);
            }
+           loader.unload();
+           loader.deleteLater();
        }
 
        return plugin_num;

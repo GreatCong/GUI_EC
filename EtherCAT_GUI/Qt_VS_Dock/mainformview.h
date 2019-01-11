@@ -19,11 +19,10 @@
 
 #include "form_generaltab.h"
 #include "my_treeview_device.h"
-#include "my_UserAppWidge.h"
+//#include "my_UserAppWidge.h"
 #include "my_lisetview_plugin.h"
 #include "my_Table_SlaveMSG.h"
 
-#include "ControlTab_P.h"
 #include "GeneralTab_P.h"
 
 #ifdef _MSC_VER //windows
@@ -46,6 +45,14 @@ public:
 private:
     Ui::MainFormView *ui;
 private:
+    typedef enum{
+        Master_Err_NONE,
+        Master_Err_InvalidAdapter = -1,
+        Master_Err_NoSlave = -2,
+        Master_Err_InvalidPlugin = -3,
+        Master_Err_InvalidCallback = -4,
+    }master_Error;
+
     /*   Left Frame  */
     My_TreeView_Device *mDeviceTree;
     QMenu* m_projectMenu;
@@ -62,8 +69,8 @@ private:
     QTabWidget *mTabWedget_center;
     QWidget *mtabWeidgetItem_General;//普通
     QWidget *mtabWeidgetItem_Messure;//测量
-    QWidget *mtabWeidgetItem_Control;//控制
-    QWidget *mtabWeidgetItem_UserApps;//控制
+//    QWidget *mtabWeidgetItem_Control;//控制
+    QWidget *mtabWeidgetItem_UserApps;//自定义
     /* Left Frame End */
 
     /*   Bottom Frame  */
@@ -90,6 +97,8 @@ private:
 
     /*   Temp  */
     QThread *thread;
+
+    QPluginLoader *m_Plugin_Loader;
 
     void Init_FrameLeft_Content(void);
     void Init_FrameRight_Content(void);
@@ -128,8 +137,9 @@ public:
     QProgressBar *m_scanWait_processBar;
     QLabel *m_status_label;
 
-    ControlTab_P *control_xx;
+//    ControlTab_P *control_xx;
     GeneralTab_P *general_xx;
+    EtherCAT_UserApp *plugin_userApps;
     My_EthercatMaster *get_MasterPtr();
 
     typedef enum{

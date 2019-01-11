@@ -48,7 +48,7 @@ void MainFormView::Init_FrameRight_Content()
 ///
 void MainFormView::mPlugins_item_DoubleClicked(QListWidgetItem *item)
 {
-   clearLayout(mtabWeidgetItem_UserApps->layout());
+//   clearLayout(mtabWeidgetItem_UserApps->layout());
    LoadPlugins(item->text());
    m_bottomText->appendPlainText(tr("Load ")+item->text());
 //    qDebug() << item->text();

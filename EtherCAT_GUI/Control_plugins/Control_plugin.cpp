@@ -1,4 +1,4 @@
-﻿#include "ControlTab_P.h"
+﻿#include "Control_plugin.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -12,21 +12,37 @@
 #define PROGRESSMINLINES 10000 //G代码文件的最大行数
 #define PROGRESSSTEP     1000
 
-ControlTab_P::ControlTab_P(QObject *parent) : QObject(parent)
+Control_plugin::Control_plugin(QObject *parent) :
+    QGenericPlugin(parent),EtherCAT_UserApp()
 {
-   user_form_controlTab = new Form_ControlTab();
-   m_motorApp_callback = new My_MotorApp_Callback();
+    user_form_controlTab = new Form_ControlTab();
+    m_motorApp_callback = new My_MotorApp_Callback();
 
-   set_UIWidgetPtr(user_form_controlTab);
-   set_CallbackPtr(m_motorApp_callback);
+    m_messageObj = new EtherCAT_Message;
 
+    set_UIWidgetPtr(user_form_controlTab);
+    set_CallbackPtr(m_motorApp_callback);
+    set_MessageObj(m_messageObj);//如果需要响应消息
 }
 
-void ControlTab_P::Init_Cores()
+///
+/// \brief QGenericPlugin中的虚函数实现
+/// \param name
+/// \param spec
+/// \return
+///
+QObject* Control_plugin::create(const QString &name, const QString &spec){
+    Q_UNUSED(name);
+    Q_UNUSED(spec);
+
+    return 0;
+}
+
+void Control_plugin::Init_Cores()
 {
     m_settingPath = "./config_User.ini";
     Load_setting(m_settingPath);//加载设置
-    m_motorApp_callback->m_slaveCount = 0;//赋初值
+    m_motorApp_callback->Master_setSlaveCount(0);//赋初值
 
     controlTab_isTheta_display = user_form_controlTab->get_CheckBoxPtr(Form_ControlTab::check_isThetaDis_c)->checkState();
 
@@ -60,28 +76,28 @@ void ControlTab_P::Init_Cores()
     connect(user_form_controlTab,SIGNAL(Key_EventSignal(QKeyEvent*)),this,SLOT(ControlTab_keyPressEvent(QKeyEvent*)));
 }
 
-void ControlTab_P::Destroy_Cores()
+void Control_plugin::Destroy_Cores()
 {
    Save_setting(m_settingPath);//保存设置
 }
 
 /*********************** Operation *************************/
-void ControlTab_P::Set_StatusMessage(QString message, int interval)
+void Control_plugin::Set_StatusMessage(QString message, int interval)
 {
-    emit StatusMessage_change(message,interval);//发出自定义信号
+    _EC_message->Set_StatusMessage(message,interval);//发出自定义信号
 }
 
-void ControlTab_P::Set_BottomMessage(QString message)
+void Control_plugin::Set_BottomMessage(QString message)
 {
-    emit BottomMessage_change(message);//发出自定义信号
+    _EC_message->Set_BottomMessage(message);//发出自定义信号
 }
 
-void ControlTab_P::Set_MasterStop()
+void Control_plugin::Set_MasterStop()
 {
-    emit MasterStop_Signal();//发出自定义信号
+    _EC_message->Set_MasterStop();//发出自定义信号
 }
 
-int ControlTab_P::Load_setting(const QString &path){
+int Control_plugin::Load_setting(const QString &path){
 
 //    QFile file("./config.ini");
     QFile file(path);
@@ -122,7 +138,7 @@ int ControlTab_P::Load_setting(const QString &path){
     return 0;
 }
 
-int ControlTab_P::Save_setting(const QString &path){
+int Control_plugin::Save_setting(const QString &path){
 
    QSettings setting(path,QSettings::IniFormat);//读配置文件
 
@@ -135,7 +151,7 @@ int ControlTab_P::Save_setting(const QString &path){
     return 0;
 }
 
-int ControlTab_P::Gcode_load(QString &fileName){
+int Control_plugin::Gcode_load(QString &fileName){
     if(!fileName.isEmpty()){
         //m_pluginDir = dir;
   //        qDebug() << m_pluginDir;
@@ -143,7 +159,7 @@ int ControlTab_P::Gcode_load(QString &fileName){
         QFile file(fileName);
 
         if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::critical(get_UIWidgetPtr(), tr("ControlTab_P"), tr("Can't open file:\n") + fileName);
+            QMessageBox::critical(get_UIWidgetPtr(), tr("Control_plugin"), tr("Can't open file:\n") + fileName);
             return -1;
         }
 
@@ -291,13 +307,13 @@ int ControlTab_P::Gcode_load(QString &fileName){
 
 /************  Slots *******************/
 
-void ControlTab_P::Control_OpenGcode_clicked(){
+void Control_plugin::Control_OpenGcode_clicked(){
 //    if(user_form_generalTab->master->Master_getSlaveCount()>0){
 //       Master_stop();//防止界面卡死
 //       StatusMessage_change(tr("Stop Master..."),3000);
 //    }
 //    StatusMessage_change(tr("Stop Master..."),3000);
-    if(m_motorApp_callback->m_slaveCount > 0){
+    if(m_motorApp_callback->Master_getSlaveCount() > 0){
         Set_MasterStop();
         Set_StatusMessage(tr("Stop Master..."),3000);
     }
@@ -321,13 +337,13 @@ void ControlTab_P::Control_OpenGcode_clicked(){
     Gcode_load(m_GcodePath_full);
 }
 
-void ControlTab_P::Control_ReloadGcode_clicked(){
+void Control_plugin::Control_ReloadGcode_clicked(){
 //    if(user_form_generalTab->master->Master_getSlaveCount()>0){
 //       Master_stop();//防止界面卡死
 //       StatusMessage_change(tr("Stop Master..."),3000);
 //    }
 
-    if(m_motorApp_callback->m_slaveCount > 0){
+    if(m_motorApp_callback->Master_getSlaveCount() > 0){
         Set_MasterStop();
         Set_StatusMessage(tr("Stop Master..."),3000);
     }
@@ -338,12 +354,12 @@ void ControlTab_P::Control_ReloadGcode_clicked(){
     }
 }
 
-void ControlTab_P::Control_SendGcode_clicked(){
+void Control_plugin::Control_SendGcode_clicked(){
    GcodeSendThread->start();//开始解析G代码线程
    m_motorApp_callback->m_RenewST_ready = true;
 }
 
-void ControlTab_P::MotorCallback_GcodeLineChange(int line){
+void Control_plugin::MotorCallback_GcodeLineChange(int line){
 //    qDebug() << line;
     //实现滚动效果
     user_form_controlTab->get_TableGcode()->selectRow(line);
@@ -356,7 +372,7 @@ void ControlTab_P::MotorCallback_GcodeLineChange(int line){
 
 }
 
-void ControlTab_P::MotorCallback_GcodePositionChange(QVector3D pos){
+void Control_plugin::MotorCallback_GcodePositionChange(QVector3D pos){
     if(!controlTab_isTheta_display){
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_X,pos.x());
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Y,pos.y());
@@ -364,7 +380,7 @@ void ControlTab_P::MotorCallback_GcodePositionChange(QVector3D pos){
     }
 }
 
-void ControlTab_P::MotorCallback_GcodeThetaChange(QVector3D theta){
+void Control_plugin::MotorCallback_GcodeThetaChange(QVector3D theta){
     if(controlTab_isTheta_display){
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_X,theta.x());
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Y,theta.y());
@@ -372,11 +388,11 @@ void ControlTab_P::MotorCallback_GcodeThetaChange(QVector3D theta){
     }
 }
 
-void ControlTab_P::ControlTab_checkThetaDis_stateChange(int arg){
+void Control_plugin::ControlTab_checkThetaDis_stateChange(int arg){
     controlTab_isTheta_display = arg;
 }
 
-void ControlTab_P::ControlTab_jog_clicked(int button){
+void Control_plugin::ControlTab_jog_clicked(int button){
     QVector3D coor_temp;
 
     switch(button){
@@ -428,7 +444,7 @@ void ControlTab_P::ControlTab_jog_clicked(int button){
     m_motorApp_callback->m_sys_reset = false;
 }
 
-void ControlTab_P::MotorCallback_MasterQuit_sig(bool isQuit){
+void Control_plugin::MotorCallback_MasterQuit_sig(bool isQuit){
     if(isQuit){
         GcodeSendThread->quit();
         GcodeSendThread->wait();
@@ -446,7 +462,7 @@ void ControlTab_P::MotorCallback_MasterQuit_sig(bool isQuit){
 
 }
 
-void ControlTab_P::ControlTab_keyPressEvent(QKeyEvent *event){
+void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
     if(m_motorApp_callback->input_ptr == NULL){
         return;
     }
@@ -537,3 +553,9 @@ void ControlTab_P::ControlTab_keyPressEvent(QKeyEvent *event){
 }
 
 /************  Slots End ***************/
+
+
+
+#if QT_VERSION < 0x050000
+Q_EXPORT_PLUGIN2(User_plugins, UserApp_plugin)
+#endif // QT_VERSION < 0x050000

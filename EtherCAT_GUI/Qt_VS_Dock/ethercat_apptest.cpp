@@ -28,7 +28,7 @@ void CALLBACK TimerCallBack()//回调函数
      //qDebug() << user_form_generalTab->master->Master_stateToString(state);
      if(state == My_EthercatMaster::STATE_OPERATIONAL){
          if(wkc >= expectedWKC){//第一次运行会出现这个问题
-             t->control_xx->get_CallbackPtr()->Master_AppLoop_callback();
+             t->plugin_userApps->get_CallbackPtr()->Master_AppLoop_callback();
 //              t->m_motorApp_callback.Master_AppLoop_callback();
          }
          else{
@@ -61,6 +61,17 @@ void CALLBACK TimerCallBack()//回调函数
 /// \brief MainFormView::Master_scan
 ///
 int MainFormView::Master_scan(){
+    if(plugin_userApps == nullptr){
+        QMessageBox::critical(this,tr("Information"),tr("No Plugin is loaded!"));
+        return Master_Err_InvalidPlugin;
+    }
+    else{
+        if(plugin_userApps->get_CallbackPtr() == nullptr){
+            QMessageBox::critical(this,tr("Information"),tr("No Callback in the Plugin"));
+            return Master_Err_InvalidCallback;
+        }
+    }
+
     int state = 0;
     delete mDeviceTree;
     Init_FrameLeft_Content();//重新初始化设备树
@@ -69,7 +80,7 @@ int MainFormView::Master_scan(){
     if(m_master->m_adapterNameSelect.isEmpty()){
         mTabWedget_center->show();
         m_widget_slaveMSG->hide();
-        return -1;
+        return Master_Err_InvalidAdapter;
     }
     ProcessBar_startEvent();
 
@@ -80,7 +91,7 @@ int MainFormView::Master_scan(){
     if(state == My_EthercatMaster::ERROR_NO_SLAVE){
         ProcessBar_stopEvent();//不出现processBar
         QMessageBox::information(this,tr("Information"),tr("No Slave Found!"));
-        return -2;
+        return Master_Err_NoSlave;
     }
     else if(state == My_EthercatMaster::ERROR_NONE){
 //        m_tableView_slaveMSG->clearContents();
@@ -88,7 +99,7 @@ int MainFormView::Master_scan(){
 //        int slave_count = 0;
 //        int slaveItem_count = 0;
 //        mDeviceTree->Add_LeftTree_Master();
-        control_xx->get_CallbackPtr()->m_slaveCount = m_master->Master_getSlaveCount();
+        plugin_userApps->get_CallbackPtr()->Master_setSlaveCount(m_master->Master_getSlaveCount());
 
         foreach (Ethercat_Slave slave, m_master->slaves_list) {
             //qDebug() << slave.dump_data(true);
@@ -114,7 +125,9 @@ int MainFormView::Master_scan(){
         general_xx->Master_UI_Scan();
     }
 
-    return 0;
+    m_pluginList->setEnabled(false);//EtherCAT销毁后才能选择加载插件
+
+    return Master_Err_NONE;
 }
 
 ///
@@ -139,8 +152,8 @@ int MainFormView::Master_run(){
         m_status_label->setText(tr("Run Mode"));
 
         m_master->Master_run();
-        control_xx->get_CallbackPtr()->Master_setAdressBase(m_master->Master_getAddressBase());
-        control_xx->get_CallbackPtr()->Master_AppStart_callback();
+        plugin_userApps->get_CallbackPtr()->Master_setAdressBase(m_master->Master_getAddressBase());
+        plugin_userApps->get_CallbackPtr()->Master_AppStart_callback();
 
         general_xx->Master_UI_RUn();
 
@@ -155,11 +168,12 @@ int MainFormView::Master_run(){
     }
     else{
         QMessageBox::warning(this,tr("Ethercat warning"),tr("No Slaves!Please scan slaves first"));
-        return -1;
+        return Master_Err_NoSlave;
     }
 
 //    this->setFocus();//如果用键盘测试的话，需要设置焦点
-    return 0;
+    m_pluginList->setEnabled(false);//EtherCAT销毁后才能选择加载插件
+    return Master_Err_NONE;
 }
 
 ///
@@ -175,7 +189,7 @@ int MainFormView::Master_stop(){
         }
 
         m_master->Master_stop();
-        control_xx->get_CallbackPtr()->Master_AppStop_callback();
+        plugin_userApps->get_CallbackPtr()->Master_AppStop_callback();
         m_status_label->setText(tr("Ready"));
 
         //设置状态
@@ -183,10 +197,12 @@ int MainFormView::Master_stop(){
     }
     else{
          QMessageBox::warning(this,tr("Ethercat warning"),tr("No Slaves!Please scan slaves first"));
-         return -1;
+         return Master_Err_NoSlave;
     }
 
-    return 0;
+    m_pluginList->setEnabled(false);//EtherCAT销毁后才能选择加载插件
+
+    return Master_Err_NONE;
 }
 
 int MainFormView::Master_setting(){
@@ -201,7 +217,9 @@ int MainFormView::Master_exit(){
     m_master->Master_close(true);
   }
 
-  return 0;
+  m_pluginList->setEnabled(true);//EtherCAT销毁后才能选择加载插件
+
+  return Master_Err_NONE;
 }
 
 /******************** Ethercat API end ******************************/

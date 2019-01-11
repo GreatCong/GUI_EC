@@ -9,8 +9,26 @@
 #include <QtQuickWidgets/QQuickWidget>
 
 Robot_Plugins::Robot_Plugins(QObject *parent) :
-    QGenericPlugin(parent)
+    QGenericPlugin(parent),EtherCAT_UserApp()
 {
+    //    m_userWidget = new QWidget();
+    //    QGridLayout *user_layout = new QGridLayout();
+    //    m_userWidget->setLayout(user_layout);
+    //    m_userWidget->layout()->addWidget(new QPushButton("Robots"));
+
+        qmlRegisterType<Turing>("io.qt.turing", 1, 0, "Turning");
+
+        QQuickWidget *quickWidget = new QQuickWidget();
+        quickWidget->setSource(QUrl(QStringLiteral("qrc:/main.qml")));
+    //    quickWidget->show();
+
+        m_userWidget = quickWidget;
+    //    QQmlApplicationEngine engine;
+        //    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+
+    set_UIWidgetPtr(m_userWidget);
+    set_CallbackPtr(nullptr);
+    set_MessageObj(nullptr);
 }
 
 ///
@@ -26,53 +44,14 @@ QObject* Robot_Plugins::create(const QString &name, const QString &spec){
     return 0;
 }
 
-///
-/// \brief Robot_Plugins::widget_contents 虚函数实现
-/// \return
-///
-QWidget* Robot_Plugins::getWidget(){
-
-    return m_userWidget;
-}
-
-///
-/// \brief Robot_Plugins::Init_Apps
-///
-void Robot_Plugins::Init_Apps(){
-//    m_userWidget = new QWidget();
-//    QGridLayout *user_layout = new QGridLayout();
-//    m_userWidget->setLayout(user_layout);
-//    m_userWidget->layout()->addWidget(new QPushButton("Robots"));
-
-    qmlRegisterType<Turing>("io.qt.turing", 1, 0, "Turning");
-
-    QQuickWidget *quickWidget = new QQuickWidget();
-    quickWidget->setSource(QUrl(QStringLiteral("qrc:/main.qml")));
-//    quickWidget->show();
-
-    m_userWidget = quickWidget;
-//    QQmlApplicationEngine engine;
-    //    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-}
-
-bool Robot_Plugins::Set_Address(uint8_t *address)
+void Robot_Plugins::Init_Cores()
 {
-    Q_UNUSED(address);
-    return true;
 
 }
 
-bool Robot_Plugins::GetAddress(uint8_t *address)
+void Robot_Plugins::Destroy_Cores()
 {
-    Q_UNUSED(address);
-    return true;
-}
 
-bool Robot_Plugins::GetSlaveAddress(uint8_t *address, int slaveNum)
-{
-    Q_UNUSED(address);
-    Q_UNUSED(slaveNum);
-    return true;
 }
 
 

@@ -3,8 +3,13 @@
 #include <QPushButton>
 
 UserApp_plugin::UserApp_plugin(QObject *parent) :
-    QGenericPlugin(parent)
+    QGenericPlugin(parent),EtherCAT_UserApp()
 {
+    m_userWidget = new Form_plot();
+
+    set_UIWidgetPtr(m_userWidget);
+    set_CallbackPtr(nullptr);
+    set_MessageObj(nullptr);
 }
 
 UserApp_plugin::~UserApp_plugin(){
@@ -24,44 +29,14 @@ QObject* UserApp_plugin::create(const QString &name, const QString &spec){
     return 0;
 }
 
-///
-/// \brief UserApp_plugin::widget_contents 虚函数实现
-/// \return
-///
-QWidget* UserApp_plugin::getWidget(){
-
-    return m_userWidget;
-}
-
-///
-/// \brief UserApp_plugin::Init_Apps
-///
-void UserApp_plugin::Init_Apps(){
-//    m_userWidget = new QWidget();
-//    QGridLayout *user_layout = new QGridLayout();
-//    m_userWidget->setLayout(user_layout);
-//    m_userWidget->layout()->addWidget(new QPushButton("User_Apps"));
-    m_userWidget = new Form_plot();
-}
-
-bool UserApp_plugin::Set_Address(uint8_t *address)
+void UserApp_plugin::Init_Cores()
 {
-    Q_UNUSED(address);
-    return true;
 
 }
 
-bool UserApp_plugin::GetAddress(uint8_t *address)
+void UserApp_plugin::Destroy_Cores()
 {
-    Q_UNUSED(address);
-    return true;
-}
 
-bool UserApp_plugin::GetSlaveAddress(uint8_t *address, int slaveNum)
-{
-    Q_UNUSED(address);
-    Q_UNUSED(slaveNum);
-    return true;
 }
 
 
