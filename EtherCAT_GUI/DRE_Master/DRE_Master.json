@@ -1,0 +1,8 @@
+﻿{
+    "Keys" : [ 538538538],
+    "author" : "liucongjun",
+    "date" : "2019/01/12",
+    "name" : "DRE_Masster",
+    "version" : "1.0.0",
+    "dependencies" : ["WinCap","VS2015_lib"]
+}

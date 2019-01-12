@@ -24,6 +24,9 @@
 #include "my_Table_SlaveMSG.h"
 
 #include "GeneralTab_P.h"
+#include "DRE_Master.h"
+
+//#include "DRE_Master_Loader.h"
 
 #ifdef _MSC_VER //windows
 #include "MMTimer_RTwin.h"
@@ -90,8 +93,9 @@ private:
     /* Ethercat End */
 
     /*   others  */
-    My_EthercatMaster *m_master;
-    void Master_attach(My_EthercatMaster *master);
+//    My_EthercatMaster *m_master;
+    DRE_Master *m_master;
+    void Master_attach(DRE_Master *master);
     void Master_dettach();
     /* others End */
 
@@ -140,7 +144,7 @@ public:
 //    ControlTab_P *control_xx;
     GeneralTab_P *general_xx;
     EtherCAT_UserApp *plugin_userApps;
-    My_EthercatMaster *get_MasterPtr();
+    DRE_Master *get_MasterPtr();
 
     typedef enum{
         Frame_left_f,
@@ -148,6 +152,12 @@ public:
         Frame_center_f,
         Frame_bottom_f
     }Frame_choose;
+
+    typedef enum{
+        Sys_Err_NONE = 0,
+        Sys_Err_InvalidMaster = -1
+    }Sys_Error;
+
     QFrame *get_FramePtr(Frame_choose choose);
     /* MainWindow End */
 
@@ -204,6 +214,8 @@ signals:
     //NOTE:自定义信号，加入const变量无法识别???可能是没有向QT注册const signal
     void StatusMessage_change(QString message,int interval);//自定义信号
     void StatusWidget_change(QWidget *widget,bool isAdd);
+
+    void User_Windows_CriticalError(int error);
 };
 
 #endif // MAINFORMVIEW_H

@@ -38,6 +38,8 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void View_UserWindows_CriticalError(int error);
+
 private:
     MainFormView *_view_main;
     QString _path_setting;

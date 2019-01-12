@@ -5,7 +5,7 @@
 #include <QTextEdit>
 #include <QDebug>
 
-#define VERSION_CODE "Version 1.0 beta"
+#define VERSION_CODE "Version 1.1 beta"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,6 +15,13 @@ MainWindow::MainWindow(QWidget *parent) :
     Init_Cores();
     _path_setting = "./config.ini";
     _view_main->Load_setting(_path_setting);
+
+    if(_view_main->get_MasterPtr() == nullptr){//主站没有加载
+        ui->actionEthercat_run->setEnabled(false);
+        ui->actionEthercat_stop->setEnabled(false);
+        ui->actionEthercat_exit->setEnabled(false);
+        ui->actionEthercat_scan->setEnabled(false);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -36,10 +43,12 @@ void MainWindow::Init_Cores(){
 
     connect(_view_main,SIGNAL(StatusMessage_change(QString,int)),this,SLOT(change_statusBarMessage(QString,int)));
     connect(_view_main,SIGNAL(StatusWidget_change(QWidget*,bool)),this,SLOT(change_statusBarWidget(QWidget*,bool)));
+    connect(_view_main,SIGNAL(User_Windows_CriticalError(int)),this,SLOT(View_UserWindows_CriticalError(int)));
 
     ui->actionEthercat_run->setEnabled(false);
     ui->actionEthercat_stop->setEnabled(false);
     ui->actionEthercat_exit->setEnabled(false);
+    ui->actionEthercat_scan->setEnabled(true);
 }
 
 ///
@@ -185,6 +194,11 @@ void MainWindow::on_actionEthercat_exit_triggered()
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::information(this,"About",VERSION_CODE);
+}
+
+void MainWindow::View_UserWindows_CriticalError(int error)
+{
+    Q_UNUSED(error);
 }
 /********************** SLOTS END ******************************/
 

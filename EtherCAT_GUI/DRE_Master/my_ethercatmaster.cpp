@@ -16,7 +16,7 @@ ec_OElistt OElist;
 /// \brief My_EthercatMaster::My_EthercatMaster
 /// \param parent
 ///
-My_EthercatMaster::My_EthercatMaster(QObject *parent) : QObject(parent)
+My_EthercatMaster::My_EthercatMaster(QObject *parent) : QGenericPlugin(parent)
 {
     m_IOmap = (char*)malloc(sizeof(char)*IOMAP_SIZE);
     memset(m_IOmap,0,sizeof(char)*IOMAP_SIZE);
@@ -31,6 +31,20 @@ My_EthercatMaster::~My_EthercatMaster()
     if(Master_getSlaveCount()>0){
       Master_close(true);
     }
+}
+
+
+///
+/// \brief QGenericPlugin中的虚函数实现
+/// \param name
+/// \param spec
+/// \return
+///
+QObject* My_EthercatMaster::create(const QString &name, const QString &spec){
+    Q_UNUSED(name);
+    Q_UNUSED(spec);
+
+    return 0;
 }
 
 
@@ -78,22 +92,6 @@ QStringList My_EthercatMaster::get_AdapterName(){
 ///
 QStringList My_EthercatMaster::get_AdapterDescription(){
     return _adapterDescriptionList;
-}
-
-///
-/// \brief 设置用户回调
-/// \param callback
-///
-void My_EthercatMaster::Master_set_UserCallBack(Ethercat_Callback *callback){
-    m_callback = callback;
-}
-
-///
-/// \brief 获取用户回调
-/// \return
-///
-Ethercat_Callback* My_EthercatMaster::Master_get_UserCallBack(){
-    return m_callback;
 }
 
 ///
@@ -573,39 +571,6 @@ void My_EthercatMaster::Master_isCheckThread(bool isCheck){
 ///
 char* My_EthercatMaster::Master_getAddressBase(){
     return m_IOmap;
-}
-
-QString My_EthercatMaster::Master_stateToString(int state)
-{
-    QString str;
-    switch(state){
-    case STATE_NONE:
-        str = "STATE_NONE";
-        break;
-    case STATE_INIT:
-         str = "STATE_INIT";
-        break;
-    case STATE_PRE_OP:
-         str = "STATE_PRE_OP";
-        break;
-    case STATE_BOOT:
-         str = "STATE_BOOT";
-        break;
-    case STATE_SAFE_OP:
-         str = "STATE_SAFE_OP";
-        break;
-    case STATE_OPERATIONAL:
-         str = "STATE_OPERATIONAL";
-        break;
-    case STATE_ACK:
-         str = "STATE_ACK";
-        break;
-    default:
-         str = "STATE_UNKNOWN:0x"+QString::number(state,16);
-        break;
-    }
-
-    return str;
 }
 
 ///
@@ -1264,6 +1229,8 @@ void My_EthercatMaster::si_sdo(int cnt)
     }
 }
 
+#if 0
+
 /******************** Ethercat_SlaveMSG_Item **************************************/
 
 const QString Ethercat_SlaveMSG_Item::dataType_Tostring()
@@ -1419,3 +1386,9 @@ const QStringList Ethercat_Slave::dump_data(bool isDebug)
     return str_list;
 }
 /***********************  Ethercat_Slave END  *********************************/
+#endif
+
+
+#if QT_VERSION < 0x050000
+Q_EXPORT_PLUGIN2(User_plugins, UserApp_plugin)
+#endif // QT_VERSION < 0x050000

@@ -77,6 +77,30 @@ void MainFormView::mPlugins_item_Clicked(QListWidgetItem *item)
     str = json.value("version").toVariant().toString();
    Add_TableProperty(mTableWidget_property,3,tr("version"),str);
 
+   QVariantList dependence = json.value("dependencies").toArray().toVariantList();
+   if(!dependence.isEmpty()){
+       if(dependence.size()==1){
+           str = dependence.at(0).toString();
+           Add_TableProperty(mTableWidget_property,4,tr("dependency"),str);
+       }
+       else{
+           int dep_num = 1;
+           QString dep_tittle;
+           foreach(QVariant dep,dependence){
+              str = dep.toString();
+              dep_tittle = tr("dependency_")+QString::number(dep_num);
+              Add_TableProperty(mTableWidget_property,3+dep_num,dep_tittle,str);
+              dep_num++;
+           }
+       }
+
+   }
+   else{
+       str = "";
+       Add_TableProperty(mTableWidget_property,4,tr("dependency"),str);
+   }
+
+
    //  qDebug() << item->text();
 }
 

@@ -13,41 +13,53 @@ GeneralTab_P::GeneralTab_P(QObject *parent) : QObject(parent)
 void GeneralTab_P::Init_Cores()
 {
   m_settingPath = "./config.ini";
-  Load_setting(m_settingPath);
+  if(user_form_generalTab->master){//如果主站不为空
+      Load_setting(m_settingPath);
+  }
+
+  set_MasterPtr(user_form_generalTab->master);//传递主站地址
 }
 
 void GeneralTab_P::Destroy_Cores()
 {
-  Save_setting(m_settingPath);
+  if(user_form_generalTab->master){//如果主站不为空
+    Save_setting(m_settingPath);
+  }
 }
 
-My_EthercatMaster *GeneralTab_P::get_MasterPtr()
+DRE_Master *GeneralTab_P::get_MasterPtr()
 {
-    return user_form_generalTab->master;
+//    return user_form_generalTab->master;
+    return m_master;
 }
 
 void GeneralTab_P::Master_UI_RUn()
 {
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(DRE_Master::Master_stateToString(DRE_Master::STATE_OPERATIONAL));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(DRE_Master::Master_stateToString(DRE_Master::STATE_OPERATIONAL));
 }
 
 void GeneralTab_P::Master_UI_Stop()
 {
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(DRE_Master::Master_stateToString(DRE_Master::STATE_INIT));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(DRE_Master::Master_stateToString(DRE_Master::STATE_INIT));
 
 }
 
 void GeneralTab_P::Master_UI_Loop(int state)
 {
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(state));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(DRE_Master::Master_stateToString(state));
 }
 
 void GeneralTab_P::Master_UI_Scan()
 {
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
-    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(DRE_Master::Master_stateToString(DRE_Master::STATE_SAFE_OP));
+    user_form_generalTab->get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(DRE_Master::Master_stateToString(DRE_Master::STATE_SAFE_OP));
+}
+
+void GeneralTab_P::set_MasterPtr(DRE_Master *master)
+{
+    m_master = master;
 }
 
 int GeneralTab_P::Load_setting(const QString &path)

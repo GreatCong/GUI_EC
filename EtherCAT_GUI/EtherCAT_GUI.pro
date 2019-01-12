@@ -2,5 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += QT_VS_Dock \
     User_plugins \
-    Robot_Plugins \
-    Control_Plugins
+    Control_Plugins \
+    DRE_Master

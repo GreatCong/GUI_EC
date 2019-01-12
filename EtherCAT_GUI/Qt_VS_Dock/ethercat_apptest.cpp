@@ -26,7 +26,7 @@ void CALLBACK TimerCallBack()//回调函数
      //t->m_timer_advanced->is_enableCallBack = false;//防止多次并发
      int state = t->get_MasterPtr()->Master_readState(0);
      //qDebug() << user_form_generalTab->master->Master_stateToString(state);
-     if(state == My_EthercatMaster::STATE_OPERATIONAL){
+     if(state == DRE_Master::STATE_OPERATIONAL){
          if(wkc >= expectedWKC){//第一次运行会出现这个问题
              t->plugin_userApps->get_CallbackPtr()->Master_AppLoop_callback();
 //              t->m_motorApp_callback.Master_AppLoop_callback();
@@ -38,8 +38,8 @@ void CALLBACK TimerCallBack()//回调函数
      else{
 //         qDebug() << My_EthercatMaster::Master_stateToString(state);
 //         t->general_xx->Master_UI_Loop(state);
-         t->get_MasterPtr()->Master_writeState(0,My_EthercatMaster::STATE_OPERATIONAL);
-         t->get_MasterPtr()->Master_CheckState(0,My_EthercatMaster::STATE_OPERATIONAL,1000);
+         t->get_MasterPtr()->Master_writeState(0,DRE_Master::STATE_OPERATIONAL);
+         t->get_MasterPtr()->Master_CheckState(0,DRE_Master::STATE_OPERATIONAL,1000);
      }
      //NOTE:这里的UI,会不会影响实时性，待测试
      t->general_xx->Master_UI_Loop(state);
@@ -72,28 +72,32 @@ int MainFormView::Master_scan(){
         }
     }
 
+    if(m_master->m_adapterNameSelect.isEmpty()){
+        mTabWedget_center->show();
+        m_widget_slaveMSG->hide();
+        mTabWedget_center->setCurrentIndex(0);
+        QMessageBox::critical(this,tr("Information"),tr("No Adapter is found!"));
+        return Master_Err_InvalidAdapter;
+    }
+
     int state = 0;
     delete mDeviceTree;
     Init_FrameLeft_Content();//重新初始化设备树
 
     mDeviceTree->Add_LeftTree_Master();
-    if(m_master->m_adapterNameSelect.isEmpty()){
-        mTabWedget_center->show();
-        m_widget_slaveMSG->hide();
-        return Master_Err_InvalidAdapter;
-    }
+
     ProcessBar_startEvent();
 
     MMTimer_RT::Delay_MSec(300);//需要无阻塞的延时 500ms
 
     state = m_master->Master_scan();
 
-    if(state == My_EthercatMaster::ERROR_NO_SLAVE){
+    if(state == DRE_Master::ERROR_NO_SLAVE){
         ProcessBar_stopEvent();//不出现processBar
         QMessageBox::information(this,tr("Information"),tr("No Slave Found!"));
         return Master_Err_NoSlave;
     }
-    else if(state == My_EthercatMaster::ERROR_NONE){
+    else if(state == DRE_Master::ERROR_NONE){
 //        m_tableView_slaveMSG->clearContents();
 //        m_tableView_slaveItemMSG->clearContents();
 //        int slave_count = 0;
@@ -233,9 +237,16 @@ void MainFormView::EthercatApp_init(){
 //    connect(m_timer_advanced,SIGNAL(timeout()),this,SLOT(mTimerAdvanced_timeout()));
 
     this->Master_attach(general_xx->get_MasterPtr());
-    //设置master check thread,可以防止运行状态时，突然切换到安全运行状态
-    m_master->Master_InitCheckThread();
-    m_master->Master_isCheckThread(true);
+    if(m_master == nullptr){
+        emit User_Windows_CriticalError(Sys_Err_InvalidMaster);
+        m_bottomText->appendPlainText(tr("Invalid master!"));
+    }
+    else{
+        //设置master check thread,可以防止运行状态时，突然切换到安全运行状态
+        m_master->Master_InitCheckThread();
+        m_master->Master_isCheckThread(true);
+    }
+
 
 }
 

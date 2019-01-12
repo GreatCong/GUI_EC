@@ -6,7 +6,7 @@
 
 #include <QPainter>
 
-#include "thread_test.h"
+//#include "thread_test.h"
 
 MainFormView::MainFormView(QWidget *parent) :
     QWidget(parent),
@@ -36,7 +36,9 @@ MainFormView::MainFormView(QWidget *parent) :
 
 MainFormView::~MainFormView()
 {
-   this->EthercatApp_destroy();
+    if(m_master){
+       this->EthercatApp_destroy();
+    }
 //   user_form_generalTab->deleteLater();
     general_xx->Destroy_Cores();
     if(plugin_userApps){
@@ -46,7 +48,7 @@ MainFormView::~MainFormView()
    delete ui;
 }
 
-void MainFormView::Master_attach(My_EthercatMaster *master)
+void MainFormView::Master_attach(DRE_Master *master)
 {
     m_master = master;
 }
@@ -56,7 +58,7 @@ void MainFormView::Master_dettach()
     m_master = nullptr;
 }
 
-My_EthercatMaster *MainFormView::get_MasterPtr()
+DRE_Master *MainFormView::get_MasterPtr()
 {
     return m_master;
 }
@@ -346,6 +348,9 @@ int MainFormView::ScanPlugins(const QString &plugin_dir)
 //               qDebug() << json.value("dependencies").toArray().toVariantList();
 
 //               QListWidgetItem *item = new QListWidgetItem(fileName);
+//               QJsonObject json = loader.metaData().value("MetaData").toObject();
+//               qDebug() << json.value("Keys").toVariant();
+//               qDebug() << json.value("dependencies").toArray().toVariantList();
                My_LisetViewItem_Plugin *item = new My_LisetViewItem_Plugin(fileName);
                item->plugin_jsonMSG = loader.metaData().value("MetaData").toObject();
                m_pluginList->addItem(item);

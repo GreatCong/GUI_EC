@@ -38,7 +38,7 @@ Form_GeneralTab::Form_GeneralTab(QWidget *parent) :
     ui->setupUi(this);
 
     Init_cores();
-    master = new My_EthercatMaster();
+
     ui->lineEdit_AdapterDesc->setPlaceholderText(tr("Description"));
     ui->lineEdit_AdapterName->setPlaceholderText(tr("Name"));
     ui->lineEdit_ActualState->setPlaceholderText(tr("Actual State"));
@@ -47,13 +47,23 @@ Form_GeneralTab::Form_GeneralTab(QWidget *parent) :
 //    get_LineEditPtr(Form_GeneralTab::Master_InquireState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
 //    get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
 
+    //    master = new My_EthercatMaster();
+        m_master_Loader = new  DRE_Master_Loader();//加载master.dll
+//        m_master_Loader->set_pluginDir("./");
+         m_master_Loader->set_pluginDir("../../../plugins/");
+        master = m_master_Loader->Master_load("DRE_Master.dll");
+        if(master == nullptr){
+            QMessageBox::critical(this,tr("Information"),tr("DRE_Master.dll is not Found or Invalid!"));
+        }
+
 //    ui->pushButton_State_Op->setEnabled(false);//禁止Op按钮
 }
 
 Form_GeneralTab::~Form_GeneralTab()
 {
 //    delete master;
-    master->deleteLater();
+    m_master_Loader->Master_unload();
+//    master->deleteLater();
     delete ui;
 }
 
@@ -193,8 +203,8 @@ void Form_GeneralTab::on_listWidget_AdapterList_itemDoubleClicked(QListWidgetIte
 void Form_GeneralTab::on_pushButton_State_Init_clicked()
 {
    if(master->Master_getSlaveCount()>0){
-       ui->lineEdit_InquireState->setText(master->Master_stateToString(My_EthercatMaster::STATE_INIT));
-       int ret = master->Master_ChangeState(0,My_EthercatMaster::STATE_INIT);
+       ui->lineEdit_InquireState->setText(master->Master_stateToString(DRE_Master::STATE_INIT));
+       int ret = master->Master_ChangeState(0,DRE_Master::STATE_INIT);
        ui->lineEdit_ActualState->setText(master->Master_stateToString(ret));
     //   qDebug() << "init_Require" << master->Master_stateToString(ret);
     }
@@ -203,8 +213,8 @@ void Form_GeneralTab::on_pushButton_State_Init_clicked()
 void Form_GeneralTab::on_pushButton_State_PreOp_clicked()
 {
   if(master->Master_getSlaveCount()>0){
-      ui->lineEdit_InquireState->setText(master->Master_stateToString(My_EthercatMaster::STATE_PRE_OP));
-      int ret = master->Master_ChangeState(0,My_EthercatMaster::STATE_PRE_OP);
+      ui->lineEdit_InquireState->setText(master->Master_stateToString(DRE_Master::STATE_PRE_OP));
+      int ret = master->Master_ChangeState(0,DRE_Master::STATE_PRE_OP);
       ui->lineEdit_ActualState->setText(master->Master_stateToString(ret));
     //  qDebug() << "PreOp_Require" << master->Master_stateToString(ret);
   }
@@ -213,8 +223,8 @@ void Form_GeneralTab::on_pushButton_State_PreOp_clicked()
 void Form_GeneralTab::on_pushButton_State_SafeOp_clicked()
 {
   if(master->Master_getSlaveCount()>0){
-      ui->lineEdit_InquireState->setText(master->Master_stateToString(My_EthercatMaster::STATE_SAFE_OP));
-      int ret = master->Master_ChangeState(0,My_EthercatMaster::STATE_SAFE_OP);
+      ui->lineEdit_InquireState->setText(master->Master_stateToString(DRE_Master::STATE_SAFE_OP));
+      int ret = master->Master_ChangeState(0,DRE_Master::STATE_SAFE_OP);
       ui->lineEdit_ActualState->setText(master->Master_stateToString(ret));
     //  qDebug() << "SafeOp_Require" << master->Master_stateToString(ret);
    }
@@ -223,8 +233,8 @@ void Form_GeneralTab::on_pushButton_State_SafeOp_clicked()
 void Form_GeneralTab::on_pushButton_State_Op_clicked()
 {
   if(master->Master_getSlaveCount()>0){
-      ui->lineEdit_InquireState->setText(master->Master_stateToString(My_EthercatMaster::STATE_OPERATIONAL));
-      int ret = master->Master_ChangeState(0,My_EthercatMaster::STATE_OPERATIONAL);
+      ui->lineEdit_InquireState->setText(master->Master_stateToString(DRE_Master::STATE_OPERATIONAL));
+      int ret = master->Master_ChangeState(0,DRE_Master::STATE_OPERATIONAL);
       ui->lineEdit_ActualState->setText(master->Master_stateToString(ret));
     //  qDebug() << "Op_Require" << master->Master_stateToString(ret);
    }

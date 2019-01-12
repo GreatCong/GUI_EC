@@ -8,7 +8,8 @@
 #include <QPushButton>
 #include <QLineEdit>
 
-#include "my_EthercatMaster.h"
+//#include "my_EthercatMaster.h"
+#include "DRE_Master_Loader.h"
 
 namespace Ui {
 class Form_GeneralTab;
@@ -38,7 +39,7 @@ public:
     }lineEdits_choose;
 
     QTableWidget *table;
-    My_EthercatMaster *master;
+    DRE_Master *master;
     const QString getMaster_adapterName();
     const QString getMaster_adapterDesc();
     void setMaster_adapterDesc(const QString &str);
@@ -62,6 +63,8 @@ private slots:
 private:
     Ui::Form_GeneralTab *ui;//外部无法访问??
     void Init_cores();
+
+    DRE_Master_Loader *m_master_Loader;
 };
 
 #endif // FORM_GENERALTAB_H
