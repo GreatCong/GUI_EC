@@ -288,17 +288,24 @@ bool MainFormView::LoadPlugins(const QString &fileName)
        plugin_userApps = qobject_cast<EtherCAT_UserApp *>(pPlugin);
        if (plugin_userApps != Q_NULLPTR) {
            plugin_userApps->Init_Cores();
-           mtabWeidgetItem_UserApps->layout()->addWidget(plugin_userApps->get_UIWidgetPtr());
+           if(plugin_userApps->get_UIWidgetPtr() == nullptr){//如果没有UI,就定义一个默认的UI
+               QLabel *plugin_default_UI = new QLabel(fileName+" UI");
+               mtabWeidgetItem_UserApps->layout()->addWidget(plugin_default_UI);
+           }
+           else{
+                mtabWeidgetItem_UserApps->layout()->addWidget(plugin_userApps->get_UIWidgetPtr());
+           }
+
            if(plugin_userApps->get_MessageObj()){//有消息响应就连接信号槽
                connect(plugin_userApps->get_MessageObj(),SIGNAL(MasterStop_Signal()),this,SLOT(Control_MasterStop_Signal()));
                connect(plugin_userApps->get_MessageObj(),SIGNAL(StatusMessage_change(QString,int)),this,SLOT(Control_StatusMessage_change(QString,int)));
-               connect(plugin_userApps->get_MessageObj(),SIGNAL(BottomMessage_change(QString)),this,SLOT(Control_BottomMessage_change(QString)));
-
-               //显示UI
-               mTabWedget_center->show();
-               m_widget_slaveMSG->hide();
-               mTabWedget_center->setCurrentIndex(2);//显示自定义界面
+               connect(plugin_userApps->get_MessageObj(),SIGNAL(BottomMessage_change(QString)),this,SLOT(Control_BottomMessage_change(QString)));               
            }
+
+           //显示UI
+           mTabWedget_center->show();
+           m_widget_slaveMSG->hide();
+           mTabWedget_center->setCurrentIndex(2);//显示自定义界面
        } else {
            //qWarning() << "qobject_cast falied";
            m_bottomText->appendPlainText(tr("qobject_cast falied"));
