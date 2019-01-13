@@ -15,18 +15,21 @@ Form_plot::Form_plot(QWidget *parent) :
     ui->lcdNumber->setMode(QLCDNumber::Dec);
     //设置显示方式
     ui->lcdNumber->setSegmentStyle(QLCDNumber::Flat);
+
+    m_timePlot = new QTimer();
+    connect(m_timePlot,SIGNAL(timeout()),this,SLOT(user_timeout_handle()));
 }
 
 Form_plot::~Form_plot()
 {
+    m_timePlot->stop();
+
     delete ui;
 }
 
 void Form_plot::on_pushButton_clicked()
 {
-    QTimer *time = new QTimer();
-    connect(time,SIGNAL(timeout()),this,SLOT(user_timeout_handle()));
-    time->start(1000);
+    m_timePlot->start(1000);
 }
 
 void Form_plot::user_timeout_handle(){

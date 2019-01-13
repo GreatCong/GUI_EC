@@ -10,10 +10,15 @@ Form_plot::Form_plot(QWidget *parent) :
     ui->setupUi(this);
 
     Init_Plots();
+
+    m_timePlot = new QTimer();
+    connect(m_timePlot,SIGNAL(timeout()),this,SLOT(user_timeout_handle()));
 }
 
 Form_plot::~Form_plot()
 {
+    m_timePlot->stop();
+
     delete ui;
 }
 
@@ -53,8 +58,6 @@ void Form_plot::Init_Plots(){
     get_customPlot()->xAxis->setRange(m_x.at(0) - 1, m_x.at(m_x.size() - 1) + 1 );
     // 刷新m_CustomPlot中数据
     get_customPlot()->replot();
-
-//    this->layout()->addWidget(m_CustomPlot);
 }
 
 QCustomPlot *Form_plot::get_customPlot(){
@@ -62,3 +65,27 @@ QCustomPlot *Form_plot::get_customPlot(){
 }
 
 
+
+void Form_plot::on_pushButton_PlotStart_clicked()
+{
+
+    m_timePlot->start(10);
+}
+
+void Form_plot::on_pushButton_PlotStop_clicked()
+{
+   m_timePlot->stop();
+}
+
+void Form_plot::user_timeout_handle(){
+    QVector<double> m_x(101),m_y(101);
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+
+    for(int i=0;i<101;i++){
+        m_x[i] = (i/50.0-1);
+        m_y[i] = sin(m_x[i]*3.14)*(qrand()%10);
+    }
+    get_customPlot()->graph(0)->setData(m_x, m_y);
+    get_customPlot()->graph(0)->rescaleValueAxis(true);
+    get_customPlot()->replot();
+}

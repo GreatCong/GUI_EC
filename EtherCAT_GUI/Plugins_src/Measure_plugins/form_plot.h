@@ -21,9 +21,15 @@ public:
     QCustomPlot *get_customPlot();
 private slots:
 
+    void on_pushButton_PlotStart_clicked();
+
+    void on_pushButton_PlotStop_clicked();
+
+    void user_timeout_handle();
 private:
     Ui::Form_plot *ui;
-
+private:
+    QTimer *m_timePlot;
     void Init_Plots();
 };
 

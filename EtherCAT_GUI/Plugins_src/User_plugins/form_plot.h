@@ -25,7 +25,7 @@ private:
     Ui::Form_plot *ui;
 
     int time_count;
-    QTimer *time;
+    QTimer *m_timePlot;
 };
 
 #endif // FORM_PLOT_H
