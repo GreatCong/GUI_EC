@@ -290,7 +290,7 @@ bool MainFormView::LoadPlugins(const QString &fileName)
         QString plugin_type =  json.value("type").toVariant().toString();
         if(plugin_type.compare("Plugin")){//不是插件
 //            qDebug() <<"OK";
-            QMessageBox::information(this,tr("Information"),tr("Plugin type is invalid!"));
+            QMessageBox::information(this,tr("Information"),tr("Plugin type is not \"Plugin\" !"));
             return false;
         }
 
@@ -315,7 +315,7 @@ bool MainFormView::LoadPlugins(const QString &fileName)
            //显示UI
            mTabWedget_center->show();
            m_widget_slaveMSG->hide();
-           mTabWedget_center->setCurrentIndex(2);//显示自定义界面
+           mTabWedget_center->setCurrentIndex(Tab_UserApp);//显示自定义界面
        } else {
            //qWarning() << "qobject_cast falied";
            m_bottomText->appendPlainText(tr("qobject_cast falied"));

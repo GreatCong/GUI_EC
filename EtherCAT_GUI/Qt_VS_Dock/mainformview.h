@@ -19,14 +19,11 @@
 
 #include "form_generaltab.h"
 #include "my_treeview_device.h"
-//#include "my_UserAppWidge.h"
 #include "my_lisetview_plugin.h"
 #include "my_Table_SlaveMSG.h"
 
 #include "GeneralTab_P.h"
 #include "DRE_Master.h"
-
-//#include "DRE_Master_Loader.h"
 
 #ifdef _MSC_VER //windows
 #include "MMTimer_RTwin.h"
@@ -56,6 +53,11 @@ private:
         Master_Err_InvalidCallback = -4,
     }master_Error;
 
+    typedef enum{
+        Tab_General,
+        Tab_UserApp
+    }centerWidget_Tab_choose;
+
     /*   Left Frame  */
     My_TreeView_Device *mDeviceTree;
     QMenu* m_projectMenu;
@@ -71,7 +73,7 @@ private:
     QTableWidget *mTableWidget_property;
     QTabWidget *mTabWedget_center;
     QWidget *mtabWeidgetItem_General;//普通
-    QWidget *mtabWeidgetItem_Messure;//测量
+//    QWidget *mtabWeidgetItem_Messure;//测量
 //    QWidget *mtabWeidgetItem_Control;//控制
     QWidget *mtabWeidgetItem_UserApps;//自定义
     /* Left Frame End */
@@ -133,7 +135,6 @@ private:
     int timer_num;
 
     void Init_TestCores();
-    void Init_Plots();
     /* 测试结束 */
 
 public:

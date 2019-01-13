@@ -8,6 +8,7 @@
 class GeneralTab_P : public QObject,public EtherCAT_UserApp
 {
     Q_OBJECT
+    Q_INTERFACES(EtherCAT_UserApp)
 public:
     explicit GeneralTab_P(QObject *parent = nullptr);
 public:

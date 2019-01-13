@@ -1,6 +1,9 @@
 TEMPLATE = subdirs
 
 SUBDIRS += QT_VS_Dock \
-    User_plugins \
-    Control_Plugins \
-    DRE_Master
+       DRE_Master
+
+# plugins
+SUBDIRS += Plugins_src/User_plugins \
+           Plugins_src/Control_Plugins \
+           Plugins_src/Measure_plugins \

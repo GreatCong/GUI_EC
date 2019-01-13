@@ -5,5 +5,5 @@
     "name" : "UserApp_Plugin",
     "version" : "1.1.0",
     "type" : "Plugin",
-    "dependencies" : []
+    "dependencies" : ["DRE_Master"]
 }

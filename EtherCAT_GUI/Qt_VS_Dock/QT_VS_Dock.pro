@@ -26,41 +26,44 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-#unix
-#{
-#  unix:include("modules/SOEM-linux.pri")
-#  #指定生成的应用程序放置的目录
-#  unix: DESTDIR += $$PWD/build/linux/bin
-#  #指定目标文件(obj)的存放目录
-#  unix: OBJECTS_DIR += $$PWD/build/linux/obj
-#}
-
-#win32
-#{
-#  win32:DEFINES +=_CRT_SECURE_NO_WARNINGS __STDC_LIMIT_MACROS
-#  # wincap中w2def.h与winsock.h定义冲突，定义WIN32_LEAN_AND_MEAN宏防止windows.h有可能包含winsock.h头文件,但是会有其他未定义的问题！！
-##  win32:DEFINES += WIN32_LEAN_AND_MEAN
-#  win32:include("modules/SOEM-win.pri")
-#  win32:include("modules/pthread-win.pri")
-##  win32:HEADERS += user/c_source/platform/ethercat_compatible_win.h
-##  #指定生成的应用程序放置的目录
-##  win32: DESTDIR += $$PWD/build/win32/bin
-##  #指定目标文件(obj)的存放目录
-##  win32: OBJECTS_DIR += $$PWD/build/win32/obj
-#}
-
 win32{
   LIBS += Winmm.lib
 }
 
-
-# qcustomplot
-include("modules/qcustomplot.pri")
-
 SOURCES += \
-#    $$PWD/Ethercat_class/my_ethercatmaster.cpp \
     $$PWD/Ethercat_class/MMTimer_RTwin.cpp \
     $$PWD/Ethercat_class/MMTimer_RT.cpp \
+    $$PWD/Ethercat_class/Ethercat_Utile.cpp \
+    $$PWD/Ethercat_class/RTTimer.cpp \
+    $$PWD/Ethercat_class/DRE_Master_Loader.cpp \
+    $$PWD/Ethercat_class/DRE_Master.cpp
+
+HEADERS += \
+    $$PWD/Ethercat_class/MMTimer_RTwin.h \
+    $$PWD/Ethercat_class/MMTimer_RT.h \
+    $$PWD/Ethercat_class/Ethercat_Utile.h \
+    $$PWD/Ethercat_class/RTTimer.h \
+    EtherCAT_UserApp.h \
+    $$PWD/Ethercat_class/DRE_Master_Loader.h \
+    $$PWD/Ethercat_class/DRE_Master.h
+
+INCLUDEPATH += $$PWD/Ethercat_class
+
+SOURCES += \
+    GeneralTab_P.cpp \
+    form_generaltab.cpp
+HEADERS += \
+    GeneralTab_P.h \
+    form_generaltab.h
+
+SOURCES += \
+        main.cpp \
+        mainwindow.cpp \
+    my_treeview_device.cpp \
+    my_lisetview_plugin.cpp \
+    mainformview.cpp \      
+    my_Table_SlaveMSG.cpp \
+    ethercat_apptest.cpp \
     mainview_left.cpp \
     mianview_right.cpp \
     mainview_center.cpp \
@@ -68,38 +71,6 @@ SOURCES += \
     mainview_utils.cpp \
     mainview_public.cpp \
     mainview_test.cpp \
-    tables/gcodetablemodel.cpp \
-    Ethercat_class/Ethercat_Utile.cpp \
-    Ethercat_class/RTTimer.cpp \
-    GeneralTab_P.cpp \
-    Ethercat_class/DRE_Master_Loader.cpp \
-    Ethercat_class/DRE_Master.cpp
-
-HEADERS += \
-#    $$PWD/Ethercat_class/my_ethercatmaster.h \
-    $$PWD/Ethercat_class/MMTimer_RTwin.h \
-    $$PWD/Ethercat_class/MMTimer_RT.h \
-    tables/gcodetablemodel.h \
-    Ethercat_class/Ethercat_Utile.h \
-    Ethercat_class/RTTimer.h \
-    EtherCAT_UserApp.h \
-    GeneralTab_P.h \
-    Ethercat_class/DRE_Master_Loader.h \
-    Ethercat_class/DRE_Master.h
-
-INCLUDEPATH += $$PWD/Ethercat_class
-INCLUDEPATH += $$PWD/tables
-
-
-SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-    my_treeview_device.cpp \
-    my_lisetview_plugin.cpp \
-    mainformview.cpp \   
-    form_generaltab.cpp \    
-    my_Table_SlaveMSG.cpp \
-    ethercat_apptest.cpp
 
 
 HEADERS += \
@@ -108,7 +79,6 @@ HEADERS += \
     my_treeview_device.h \
     user_common.h \
     my_lisetview_plugin.h \
-    form_generaltab.h \
     my_Table_SlaveMSG.h
 
 FORMS += \

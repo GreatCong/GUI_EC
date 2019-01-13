@@ -75,7 +75,7 @@ int MainFormView::Master_scan(){
     if(m_master->m_adapterNameSelect.isEmpty()){
         mTabWedget_center->show();
         m_widget_slaveMSG->hide();
-        mTabWedget_center->setCurrentIndex(0);
+        mTabWedget_center->setCurrentIndex(Tab_General);
         QMessageBox::critical(this,tr("Information"),tr("No Adapter is found!"));
         return Master_Err_InvalidAdapter;
     }

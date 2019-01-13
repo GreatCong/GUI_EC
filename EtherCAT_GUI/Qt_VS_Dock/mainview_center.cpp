@@ -35,10 +35,10 @@ void MainFormView::Init_FrameCenter_Content()
     general_xx->Init_Cores();
 
 
-    mtabWeidgetItem_Messure = new QWidget();
-    user_layout = new QGridLayout();
-    mtabWeidgetItem_Messure->setLayout(user_layout);
-    mTabWedget_center->addTab(mtabWeidgetItem_Messure,tr("Messure"));
+//    mtabWeidgetItem_Messure = new QWidget();
+//    user_layout = new QGridLayout();
+//    mtabWeidgetItem_Messure->setLayout(user_layout);
+//    mTabWedget_center->addTab(mtabWeidgetItem_Messure,tr("Messure"));
 
 //    mtabWeidgetItem_Control = new QWidget();
 //    user_layout = new QGridLayout();

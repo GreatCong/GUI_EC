@@ -2,7 +2,7 @@
 #define USERAPP_PLUGIN_H
 
 #include <QObject>
-#include "../Qt_VS_Dock/EtherCAT_UserApp.h"
+#include "../../Qt_VS_Dock/EtherCAT_UserApp.h"
 #include "form_plot.h"
 
 class UserApp_plugin : public QObject,EtherCAT_UserApp
