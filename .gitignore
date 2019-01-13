@@ -25,6 +25,9 @@ ui_*.h
 Makefile*
 *build-*
 
+# Add pthread lib 
+!pthread-build-win*
+
 # QtCreator
 
 *.autosave
