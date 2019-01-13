@@ -286,6 +286,14 @@ bool MainFormView::LoadPlugins(const QString &fileName)
     // 返回插件的根组件对象
     QObject *pPlugin = m_Plugin_Loader->instance();
     if (pPlugin != Q_NULLPTR) {
+        QJsonObject json = m_Plugin_Loader->metaData().value("MetaData").toObject();
+        QString plugin_type =  json.value("type").toVariant().toString();
+        if(plugin_type.compare("Plugin")){//不是插件
+//            qDebug() <<"OK";
+            QMessageBox::information(this,tr("Information"),tr("Plugin type is invalid!"));
+            return false;
+        }
+
        // 访问感兴趣的接口
        plugin_userApps = qobject_cast<EtherCAT_UserApp *>(pPlugin);
        if (plugin_userApps != Q_NULLPTR) {

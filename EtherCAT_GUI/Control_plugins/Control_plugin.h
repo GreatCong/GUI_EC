@@ -1,14 +1,15 @@
 ﻿#ifndef CONTROL_PLUGIN_H
 #define CONTROL_PLUGIN_H
 
-#include <QGenericPlugin>
+//#include <QGenericPlugin>
+#include <QObject>
 #include "Commmon/EtherCAT_UserApp.h"
 
 #include <QObject>
 #include "My_MotorApp_Callback.h"
 #include "Form_ControlTab.h"
 
-class Control_plugin : public QGenericPlugin,EtherCAT_UserApp
+class Control_plugin : public QObject,EtherCAT_UserApp
 {
     Q_OBJECT
 #if QT_VERSION >= 0x050000
@@ -19,7 +20,7 @@ class Control_plugin : public QGenericPlugin,EtherCAT_UserApp
 
 public:
     Control_plugin(QObject *parent = 0);
-    QObject *create(const QString &name, const QString &spec);
+
     virtual void Init_Cores();
     virtual void Destroy_Cores();
 private:

@@ -65,6 +65,7 @@ private:
     void Init_cores();
 
     DRE_Master_Loader *m_master_Loader;
+    void Load_master();
 };
 
 #endif // FORM_GENERALTAB_H

@@ -13,7 +13,7 @@
 #define PROGRESSSTEP     1000
 
 Control_plugin::Control_plugin(QObject *parent) :
-    QGenericPlugin(parent),EtherCAT_UserApp()
+    QObject(parent),EtherCAT_UserApp()
 {
     user_form_controlTab = new Form_ControlTab();
     m_motorApp_callback = new My_MotorApp_Callback();
@@ -25,18 +25,6 @@ Control_plugin::Control_plugin(QObject *parent) :
     set_MessageObj(m_messageObj);//如果需要响应消息
 }
 
-///
-/// \brief QGenericPlugin中的虚函数实现
-/// \param name
-/// \param spec
-/// \return
-///
-QObject* Control_plugin::create(const QString &name, const QString &spec){
-    Q_UNUSED(name);
-    Q_UNUSED(spec);
-
-    return 0;
-}
 
 void Control_plugin::Init_Cores()
 {

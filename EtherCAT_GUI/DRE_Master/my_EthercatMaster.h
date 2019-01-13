@@ -1,7 +1,8 @@
 ﻿#ifndef MY_ETHERCATMASTER_H
 #define MY_ETHERCATMASTER_H
 
-#include <QGenericPlugin>
+//#include <QGenericPlugin>
+#include <QObject>
 #include "DRE_Master.h"
 
 Q_DECLARE_INTERFACE(DRE_Master, Master_iid) //定义接口
@@ -9,7 +10,7 @@ Q_DECLARE_INTERFACE(DRE_Master, Master_iid) //定义接口
 ///
 /// \brief The My_EthercatMaster class
 ///
-class My_EthercatMaster : public QGenericPlugin,public DRE_Master
+class My_EthercatMaster : public QObject,public DRE_Master
 {
     Q_OBJECT
 #if QT_VERSION >= 0x050000
@@ -22,7 +23,6 @@ public:
     explicit My_EthercatMaster(QObject *parent = nullptr);
     ~My_EthercatMaster();
 
-    QObject *create(const QString &name, const QString &spec);
 public:
 
     /* Adapter */

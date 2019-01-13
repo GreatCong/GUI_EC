@@ -4,5 +4,6 @@
     "date" : "2019/01/12",
     "name" : "DRE_Masster",
     "version" : "1.0.0",
+    "type" : "Master",
     "dependencies" : ["WinCap","VS2015_lib"]
 }

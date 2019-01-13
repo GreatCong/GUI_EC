@@ -20,7 +20,7 @@ DRE_Master* DRE_Master_Loader::Master_load(const QString &fileName)
     QDir pluginsDir(m_pluginDir);
 
     m_Plugin_Loader = new QPluginLoader(pluginsDir.absoluteFilePath(fileName));
-    qDebug() << pluginsDir.absoluteFilePath(fileName);
+//    qDebug() << pluginsDir.absoluteFilePath(fileName);
 
     // 返回插件的根组件对象
     QObject *pPlugin = m_Plugin_Loader->instance();

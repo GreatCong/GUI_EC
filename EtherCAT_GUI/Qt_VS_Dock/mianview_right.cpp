@@ -76,12 +76,14 @@ void MainFormView::mPlugins_item_Clicked(QListWidgetItem *item)
    Add_TableProperty(mTableWidget_property,2,tr("name"),str);
     str = json.value("version").toVariant().toString();
    Add_TableProperty(mTableWidget_property,3,tr("version"),str);
+   str = json.value("type").toVariant().toString();
+  Add_TableProperty(mTableWidget_property,4,tr("type"),str);
 
    QVariantList dependence = json.value("dependencies").toArray().toVariantList();
    if(!dependence.isEmpty()){
        if(dependence.size()==1){
            str = dependence.at(0).toString();
-           Add_TableProperty(mTableWidget_property,4,tr("dependency"),str);
+           Add_TableProperty(mTableWidget_property,5,tr("dependency"),str);
        }
        else{
            int dep_num = 1;
@@ -89,7 +91,7 @@ void MainFormView::mPlugins_item_Clicked(QListWidgetItem *item)
            foreach(QVariant dep,dependence){
               str = dep.toString();
               dep_tittle = tr("dependency_")+QString::number(dep_num);
-              Add_TableProperty(mTableWidget_property,3+dep_num,dep_tittle,str);
+              Add_TableProperty(mTableWidget_property,4+dep_num,dep_tittle,str);
               dep_num++;
            }
        }
@@ -97,7 +99,7 @@ void MainFormView::mPlugins_item_Clicked(QListWidgetItem *item)
    }
    else{
        str = "";
-       Add_TableProperty(mTableWidget_property,4,tr("dependency"),str);
+       Add_TableProperty(mTableWidget_property,5,tr("dependency"),str);
    }
 
 

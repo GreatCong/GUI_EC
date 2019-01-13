@@ -16,7 +16,7 @@ ec_OElistt OElist;
 /// \brief My_EthercatMaster::My_EthercatMaster
 /// \param parent
 ///
-My_EthercatMaster::My_EthercatMaster(QObject *parent) : QGenericPlugin(parent)
+My_EthercatMaster::My_EthercatMaster(QObject *parent) : QObject(parent)
 {
     m_IOmap = (char*)malloc(sizeof(char)*IOMAP_SIZE);
     memset(m_IOmap,0,sizeof(char)*IOMAP_SIZE);
@@ -32,21 +32,6 @@ My_EthercatMaster::~My_EthercatMaster()
       Master_close(true);
     }
 }
-
-
-///
-/// \brief QGenericPlugin中的虚函数实现
-/// \param name
-/// \param spec
-/// \return
-///
-QObject* My_EthercatMaster::create(const QString &name, const QString &spec){
-    Q_UNUSED(name);
-    Q_UNUSED(spec);
-
-    return 0;
-}
-
 
 ///
 /// \brief 查找网络适配器

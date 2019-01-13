@@ -7,6 +7,8 @@
 #include <QCheckBox>
 
 #include <QDebug>
+#include <QSettings>
+#include <QDir>
 
 class My_LisetViewItem : public QListWidgetItem
 {
@@ -48,16 +50,12 @@ Form_GeneralTab::Form_GeneralTab(QWidget *parent) :
 //    get_LineEditPtr(Form_GeneralTab::Master_ActualState_e)->setText(My_EthercatMaster::Master_stateToString(My_EthercatMaster::STATE_INIT));
 
     //    master = new My_EthercatMaster();
-        m_master_Loader = new  DRE_Master_Loader();//加载master.dll
-//        m_master_Loader->set_pluginDir("./");
-         m_master_Loader->set_pluginDir("../../../plugins/");
-        master = m_master_Loader->Master_load("DRE_Master.dll");
-        if(master == nullptr){
-            QMessageBox::critical(this,tr("Information"),tr("DRE_Master.dll is not Found or Invalid!"));
-        }
+
+        Load_master();
 
 //    ui->pushButton_State_Op->setEnabled(false);//禁止Op按钮
 }
+
 
 Form_GeneralTab::~Form_GeneralTab()
 {
@@ -103,6 +101,52 @@ void Form_GeneralTab::Init_cores(){
     table->setItem(1,0,tableItem);
 
     ui->comboBox_PLCPeriod->setCurrentIndex(9);//设置初始的PLC周期为10ms
+}
+
+
+void Form_GeneralTab::Load_master(){
+    QString pluginDir;//master的dll与插件在一个文件夹下
+    QString path = "./config.ini";
+
+    QFile file(path);
+    if(file.exists()){
+        QSettings setting(path,QSettings::IniFormat);//读配置文件
+
+        QString setting_pluginDir =  setting.value("Path/PluginPath").toString();
+        QDir dir;
+        dir= QDir(setting_pluginDir);
+        if(dir.exists()){
+            pluginDir = setting_pluginDir;
+        }
+//        else{
+//            QMessageBox::warning(this,tr("Path Error!"),"PluginPath is Invalid,loading default path..");
+//        }
+
+//        QString master_adapterName = setting.value("EtherCAT/Adapter_Name").toString();
+//        QString master_adapterDesc = setting.value("EtherCAT/Adapter_Desc").toString();
+//        general_xx->get_UIWidgetPtr()->setMaster_adapterName(master_adapterName);
+//        general_xx->get_UIWidgetPtr()->setMaster_adapterDesc(master_adapterDesc);
+//        //bind to master
+//        general_xx->get_UIWidgetPtr()->master->m_adapterDescSelect = master_adapterDesc;
+//        general_xx->get_UIWidgetPtr()->master->m_adapterNameSelect = master_adapterName;
+//        qDebug() << m_GcodePath<<m_pluginDir;
+    }
+    else{
+//        m_GcodePath = "./";
+        pluginDir = "./";
+//        qDebug() << "Load default setting!";
+//        Set_StatusMessage(tr("Load default setting!"),3000);
+    }
+
+    m_master_Loader = new  DRE_Master_Loader();//加载master.dll
+//        m_master_Loader->set_pluginDir("./");
+//     m_master_Loader->set_pluginDir("../../../plugins/");
+     m_master_Loader->set_pluginDir(pluginDir);
+    master = m_master_Loader->Master_load("DRE_Master.dll");
+    if(master == nullptr){
+        QMessageBox::critical(this,tr("Information"),tr("DRE_Master.dll is not Found or Invalid!"));
+    }
+
 }
 
 const QString Form_GeneralTab::getMaster_adapterName(){
