@@ -88,3 +88,6 @@ FORMS += \
 
 RESOURCES += \
     res_icons.qrc
+
+#Add Application Icon
+RC_FILE = $$PWD/Resource/Icons/res.rc

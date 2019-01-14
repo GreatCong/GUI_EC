@@ -1,6 +1,8 @@
 ﻿#include "GeneralTab_P.h"
 #include <QSettings>
 #include <Qfile>
+#include <QMessageBox>
+#include <QDebug>
 
 GeneralTab_P::GeneralTab_P(QObject *parent) : QObject(parent)
 {
@@ -71,11 +73,20 @@ int GeneralTab_P::Load_setting(const QString &path)
 
             QString master_adapterName = setting.value("EtherCAT/Adapter_Name").toString();
             QString master_adapterDesc = setting.value("EtherCAT/Adapter_Desc").toString();
+            int plc_period = setting.value("EtherCAT/PLC_Period").toInt();
+//            qDebug() << plc_period;
+            if(plc_period < 1 || plc_period >10){
+                QMessageBox::warning(get_UIWidgetPtr(),tr("Invalid PLC_period"),tr("Load default PLC_period!"));
+                plc_period = 10;
+            }
+
             user_form_generalTab->setMaster_adapterName(master_adapterName);
             user_form_generalTab->setMaster_adapterDesc(master_adapterDesc);
             //bind to master
-            user_form_generalTab->master->m_adapterDescSelect = master_adapterDesc;
-            user_form_generalTab->master->m_adapterNameSelect = master_adapterName;
+            user_form_generalTab->master->set_CurrentAdapter(master_adapterName,master_adapterDesc);
+
+            user_form_generalTab->master->set_PLC_Period(plc_period);
+            user_form_generalTab->get_ComboBox(Form_GeneralTab::Master_periodPLC_c)->setCurrentIndex(plc_period-1);
     //        qDebug() << m_GcodePath<<m_pluginDir;
         }
 
@@ -89,6 +100,7 @@ int GeneralTab_P::Save_setting(const QString &path)
     setting.beginGroup(tr("EtherCAT"));
     setting.setValue("Adapter_Name",user_form_generalTab->getMaster_adapterName());//设置key和value，也就是参数和值
     setting.setValue("Adapter_Desc",user_form_generalTab->getMaster_adapterDesc());
+    setting.setValue("PLC_Period",user_form_generalTab->master->get_PLC_Period());
  //   setting.setValue("remeber",true);
     setting.endGroup();//节点结束
 

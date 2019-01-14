@@ -51,7 +51,9 @@ Form_GeneralTab::Form_GeneralTab(QWidget *parent) :
 
     //    master = new My_EthercatMaster();
 
-        Load_master();
+    Load_master();
+
+    ui->comboBox_PLCPeriod->setCurrentIndex(9);//设置初始的PLC周期为10ms
 
 //    ui->pushButton_State_Op->setEnabled(false);//禁止Op按钮
 }
@@ -99,8 +101,6 @@ void Form_GeneralTab::Init_cores(){
     tableItem = new QTableWidgetItem(tr("..."));
     tableItem->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     table->setItem(1,0,tableItem);
-
-    ui->comboBox_PLCPeriod->setCurrentIndex(9);//设置初始的PLC周期为10ms
 }
 
 
@@ -209,6 +209,19 @@ QLineEdit *Form_GeneralTab::get_LineEditPtr(lineEdits_choose choose)
     }
 }
 
+QComboBox *Form_GeneralTab::get_ComboBox(ComboBox_choose choose)
+{
+    switch(choose){
+    case Master_periodPLC_c:
+        return ui->comboBox_PLCPeriod;
+        break;
+    default:
+        QMessageBox::critical(this,tr("Form_GeneralTab ComboBox"),tr("Return NULL!"));
+        return NULL;
+        break;
+    }
+}
+
 /*********************** 槽函数 **************************************/
 
 void Form_GeneralTab::on_pushButton_AdapterFind_clicked()
@@ -236,8 +249,7 @@ void Form_GeneralTab::on_listWidget_AdapterList_itemDoubleClicked(QListWidgetIte
 //    qDebug() << my_item->current_index;
     QString name = master->get_AdapterName().at(my_item->current_index);
     QString desc = item->text();
-    master->m_adapterDescSelect = desc;
-    master->m_adapterNameSelect = name;
+    master->set_CurrentAdapter(name,desc);
 
     ui->lineEdit_AdapterDesc->setText(desc);
     ui->lineEdit_AdapterName->setText(name);
@@ -282,6 +294,15 @@ void Form_GeneralTab::on_pushButton_State_Op_clicked()
       ui->lineEdit_ActualState->setText(master->Master_stateToString(ret));
     //  qDebug() << "Op_Require" << master->Master_stateToString(ret);
    }
+}
+
+void Form_GeneralTab::on_comboBox_PLCPeriod_currentIndexChanged(int index)
+{
+    //qDebug() << index;
+    if(master){
+        master->set_PLC_Period(index+1);//设置EtherCAT周期 ms
+    }
+
 }
 
 /*****************   槽函数 END   **************************/

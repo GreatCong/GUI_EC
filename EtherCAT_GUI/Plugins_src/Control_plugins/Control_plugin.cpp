@@ -94,7 +94,7 @@ int Control_plugin::Load_setting(const QString &path){
 
 //        QString str_3=setting.value("Login/account").toString();
 //        qDebug() << str_3;
-        QString setting_GcodePath = setting.value("Path/GcodePath").toString();
+        QString setting_GcodePath = setting.value("Control_Plugin/GcodePath").toString();
 //        QString setting_pluginDir =  setting.value("Path/PluginPath").toString();
         QDir dir;
         dir= QDir(setting_GcodePath);
@@ -130,7 +130,7 @@ int Control_plugin::Save_setting(const QString &path){
 
    QSettings setting(path,QSettings::IniFormat);//读配置文件
 
-   setting.beginGroup(tr("Path"));
+   setting.beginGroup(tr("Control_Plugin"));
    setting.setValue("GcodePath",m_GcodePath);//设置key和value，也就是参数和值
 //   setting.setValue("PluginPath",m_pluginDir);
 //   setting.setValue("remeber",true);

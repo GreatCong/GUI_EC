@@ -31,6 +31,12 @@ public:
     QStringList get_AdapterDescription();
     /* Adapter End */
 
+    void set_CurrentAdapter(QString &adapterName,QString &adapterDesc);
+    QList<Ethercat_Slave>* get_SlaveListPtr();
+    int get_PLC_Period();
+    void set_PLC_Period(int period_ms);
+    const QString get_CurrentAdapter(int type);
+
     /* Eterhcat system */
     int Master_init(const QString &ifname);
     int Master_init(const QString &ifname1, const QString &ifname2);
@@ -68,7 +74,12 @@ public:
 
     void Master_usSleep(uint32_t usec);
     /* Others end */
+protected:
+    QString m_adapterNameSelect;
+    QString m_adapterDescSelect;
 
+    QList<Ethercat_Slave> *m_slaves_list;
+    int m_PLC_Period;
 private:
     QStringList _adapterNameList;
     QStringList _adapterDescriptionList;

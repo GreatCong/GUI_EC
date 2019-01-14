@@ -20,6 +20,12 @@ My_EthercatMaster::My_EthercatMaster(QObject *parent) : QObject(parent)
 {
     m_IOmap = (char*)malloc(sizeof(char)*IOMAP_SIZE);
     memset(m_IOmap,0,sizeof(char)*IOMAP_SIZE);
+
+    m_adapterNameSelect = "";
+    m_adapterDescSelect = "";
+
+    m_slaves_list = new QList<Ethercat_Slave>;
+    m_PLC_Period = 10;//默认10ms运行
 }
 
 
@@ -78,6 +84,40 @@ QStringList My_EthercatMaster::get_AdapterName(){
 QStringList My_EthercatMaster::get_AdapterDescription(){
     return _adapterDescriptionList;
 }
+
+
+void My_EthercatMaster::set_CurrentAdapter(QString &adapterName,QString &adapterDesc){
+   m_adapterNameSelect = adapterName;
+   m_adapterDescSelect = adapterDesc;
+}
+
+QList<Ethercat_Slave>* My_EthercatMaster::get_SlaveListPtr(){
+   return m_slaves_list;
+}
+
+int My_EthercatMaster::get_PLC_Period(){
+   return m_PLC_Period;
+}
+
+void My_EthercatMaster::set_PLC_Period(int period_ms){
+   m_PLC_Period = period_ms;
+}
+
+const QString My_EthercatMaster::get_CurrentAdapter(int type){
+    switch(type){
+    case Adapter_name:
+        return m_adapterNameSelect;
+        break;
+    case Adapter_desc:
+        return m_adapterDescSelect;
+        break;
+    default:
+        break;
+    }
+
+   return QString("");
+}
+
 
 ///
 /// \brief EtherCAT初始化
@@ -222,7 +262,7 @@ int My_EthercatMaster::Master_scan(const QString &ifname){
 //    bool printMAP = true;
 
     //printf("Starting slaveinfo\n");
-    slaves_list.clear();
+    m_slaves_list->clear();
     memset(m_IOmap,0,sizeof(char)*IOMAP_SIZE);
 
     /* initialise SOEM, bind socket to ifname */
@@ -281,7 +321,7 @@ int My_EthercatMaster::Master_scan(const QString &ifname){
                slave.m_eep_id = ec_slave[cnt].eep_id;
                slave.m_eep_rev = ec_slave[cnt].eep_rev;
 
-               slaves_list.append(slave);
+               m_slaves_list->append(slave);
 #if 0
                printf("\nSlave:%d\n Name:%s\n Output size: %dbits\n Input size: %dbits\n State: %d\n Delay: %d[ns]\n Has DC: %d\n",
                      cnt, ec_slave[cnt].name, ec_slave[cnt].Obits, ec_slave[cnt].Ibits,
@@ -647,7 +687,7 @@ int My_EthercatMaster::Master_si_PDOassign(uint16_t slave, uint16_t PDOassign, i
     int abs_offset, abs_bit;
 
     uint16_t sm_index = PDOassign - ECT_SDO_PDOASSIGN;
-    Ethercat_Slave slave_select = slaves_list.at(slave-1);
+    Ethercat_Slave slave_select = m_slaves_list->at(slave-1);
 
     rdl = sizeof(rdat); rdat = 0;
     /* read PDO assign subindex 0 ( = number of PDO's) */
@@ -712,13 +752,13 @@ int My_EthercatMaster::Master_si_PDOassign(uint16_t slave, uint16_t PDOassign, i
 
                         if(sm_index == 2){//outputs
                             slave_select.output_list.append(itemSlaveMSG);
-                            slaves_list.replace(slave-1,slave_select);
+                            m_slaves_list->replace(slave-1,slave_select);
                             //NOTE:不能连着进行转换，否则出错
                             //slaves_list.at(0).output_list.append(itemSlaveMSG);
                         }
                         else if (sm_index == 3){// inputs
                             slave_select.input_list.append(itemSlaveMSG);
-                            slaves_list.replace(slave-1,slave_select);
+                            m_slaves_list->replace(slave-1,slave_select);
                             //slaves_list.at(0).input_list.append(itemSlaveMSG);
                         }
                     }

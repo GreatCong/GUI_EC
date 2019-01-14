@@ -121,15 +121,21 @@ public:
        STATE_ERROR          = 0x10
     } state_enum;
 
+    typedef enum{
+        Adapter_name,
+        Adapter_desc
+    }adapter_type_choose;
+
     /* Adapter */
     virtual bool Find_adapter() = 0;
     virtual QStringList get_AdapterName() = 0;
     virtual QStringList get_AdapterDescription() = 0;
 
-    QString m_adapterNameSelect;
-    QString m_adapterDescSelect;
-
-    QList<Ethercat_Slave> slaves_list;
+    virtual void set_CurrentAdapter(QString &adapterName,QString &adapterDesc) = 0;
+    virtual QList<Ethercat_Slave>* get_SlaveListPtr() = 0;
+    virtual int get_PLC_Period() = 0;
+    virtual void set_PLC_Period(int period_ms) = 0;
+    virtual const QString get_CurrentAdapter(int type) = 0;
     /* Adapter End */
 
     /* Eterhcat system */

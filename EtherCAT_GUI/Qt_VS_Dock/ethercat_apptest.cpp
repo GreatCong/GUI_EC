@@ -5,11 +5,11 @@
 typedef struct{
    int Timer_id;
    bool isRun;
-   int period_us;
+//   int period_us;
 }RTtimer_User_S;
 
 RTtimer_User_S RTtimer_User = {
-    1,false,2000
+    1,false
 };
 
 DWORD_PTR user;
@@ -72,7 +72,7 @@ int MainFormView::Master_scan(){
         }
     }
 
-    if(m_master->m_adapterNameSelect.isEmpty()){
+    if(m_master->get_CurrentAdapter(DRE_Master::Adapter_name).isEmpty()){
         mTabWedget_center->show();
         m_widget_slaveMSG->hide();
         mTabWedget_center->setCurrentIndex(Tab_General);
@@ -105,7 +105,7 @@ int MainFormView::Master_scan(){
 //        mDeviceTree->Add_LeftTree_Master();
         plugin_userApps->get_CallbackPtr()->Master_setSlaveCount(m_master->Master_getSlaveCount());
 
-        foreach (Ethercat_Slave slave, m_master->slaves_list) {
+        foreach (Ethercat_Slave slave, *(m_master->get_SlaveListPtr())) {
             //qDebug() << slave.dump_data(true);
             //TextList_append(m_bottomText,slave.dump_data(true));
             //m_tableView_slaveMSG->append_RawData(slave_count++,slave.dump_data());
@@ -164,7 +164,7 @@ int MainFormView::Master_run(){
 
         //最好放在后面，否则会崩溃
         if(!RTtimer_User.isRun){
-            TimeRun(RTtimer_User.Timer_id, RTtimer_User.period_us, TimerCallBack); //开启周期数据通信
+            TimeRun(RTtimer_User.Timer_id, m_master->get_PLC_Period()*1000, TimerCallBack); //开启周期数据通信
             user = (DWORD_PTR)this;
             RTtimer_User.isRun = true;
         }

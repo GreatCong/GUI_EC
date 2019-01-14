@@ -15,6 +15,7 @@
         <file>Resource/Icons/Play.png</file>
         <file>Resource/Icons/Refresh.png</file>
         <file>Resource/Icons/Pause.png</file>
+        <file>Resource/Icons/Master-Icon.ico</file>
     </qresource>
     <qresource prefix="/image2">
         <file>Resource/image/btn_close.png</file>

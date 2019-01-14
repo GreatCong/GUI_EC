@@ -7,6 +7,7 @@
 
 #include <QPushButton>
 #include <QLineEdit>
+#include <QComboBox>
 
 //#include "my_EthercatMaster.h"
 #include "DRE_Master_Loader.h"
@@ -38,6 +39,10 @@ public:
         Master_ActualState_e
     }lineEdits_choose;
 
+    typedef enum{
+        Master_periodPLC_c,
+    }ComboBox_choose;
+
     QTableWidget *table;
     DRE_Master *master;
     const QString getMaster_adapterName();
@@ -47,6 +52,7 @@ public:
 
     QPushButton *get_ButtonPtr(buttons_choose choose);
     QLineEdit *get_LineEditPtr(lineEdits_choose choose);
+    QComboBox *get_ComboBox(ComboBox_choose choose);
 private slots:
     void on_pushButton_AdapterFind_clicked();
 
@@ -59,6 +65,8 @@ private slots:
     void on_pushButton_State_SafeOp_clicked();
 
     void on_pushButton_State_Op_clicked();
+
+    void on_comboBox_PLCPeriod_currentIndexChanged(int index);
 
 private:
     Ui::Form_GeneralTab *ui;//外部无法访问??

@@ -40,6 +40,8 @@ private slots:
 
     void View_UserWindows_CriticalError(int error);
 
+    void on_actionEthercat_output_triggered();
+
 private:
     MainFormView *_view_main;
     QString _path_setting;

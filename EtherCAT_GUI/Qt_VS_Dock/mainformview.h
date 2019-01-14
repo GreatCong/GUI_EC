@@ -181,7 +181,8 @@ public:
 
 //    Form_GeneralTab *get_UserGeneralTab(){
 //        return user_form_generalTab;
-//    }
+    //    }
+    int Generate_UserCode(QString &path);
 private slots:
     void mDeviceTree_customContextMenuRequested(const QPoint &pos);
     void mDeviceTree_DoubleClicked(const QModelIndex);

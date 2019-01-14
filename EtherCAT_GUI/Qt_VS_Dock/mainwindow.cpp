@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->actionEthercat_stop->setEnabled(false);
         ui->actionEthercat_exit->setEnabled(false);
         ui->actionEthercat_scan->setEnabled(false);
+        ui->actionEthercat_output->setEnabled(false);
     }
 }
 
@@ -49,6 +50,7 @@ void MainWindow::Init_Cores(){
     ui->actionEthercat_stop->setEnabled(false);
     ui->actionEthercat_exit->setEnabled(false);
     ui->actionEthercat_scan->setEnabled(true);
+    ui->actionEthercat_output->setEnabled(false);
 }
 
 ///
@@ -73,15 +75,15 @@ bool MainWindow::Load_UserStyle(QString name){
 ///
 void MainWindow::Init_Icons()
 {
-    QPixmap pixmap(":/image1/Resource/Icons/VS.png");
+//    QPixmap pixmap(":/image1/Resource/Icons/VS.png");
 
-    QIcon vs_icon;
-    vs_icon.addPixmap(pixmap.copy(0, 0, 24, 24), QIcon::Normal, QIcon::Off);
-    vs_icon.addPixmap(pixmap.copy(0, 24, 24, 24), QIcon::Normal, QIcon::On);
-    vs_icon.addPixmap(pixmap.copy(24, 0, 24, 24), QIcon::Active, QIcon::On);
-    vs_icon.addPixmap(pixmap.copy(24, 24, 24, 24), QIcon::Active, QIcon::Off);
+//    QIcon vs_icon;
+//    vs_icon.addPixmap(pixmap.copy(0, 0, 24, 24), QIcon::Normal, QIcon::Off);
+//    vs_icon.addPixmap(pixmap.copy(0, 24, 24, 24), QIcon::Normal, QIcon::On);
+//    vs_icon.addPixmap(pixmap.copy(24, 0, 24, 24), QIcon::Active, QIcon::On);
+//    vs_icon.addPixmap(pixmap.copy(24, 24, 24, 24), QIcon::Active, QIcon::Off);
 
-    this->setWindowIcon(vs_icon);
+//    this->setWindowIcon(vs_icon);
     this->setWindowTitle(tr("Ethercat Master"));
 }
 
@@ -171,6 +173,7 @@ void MainWindow::on_actionEthercat_stop_triggered()
            ui->actionEthercat_run->setEnabled(true);
            ui->actionEthercat_stop->setEnabled(false);
            ui->actionEthercat_exit->setEnabled(true);
+           ui->actionEthercat_output->setEnabled(true);
        }
 }
 
@@ -188,7 +191,20 @@ void MainWindow::on_actionEthercat_exit_triggered()
          ui->actionEthercat_stop->setEnabled(false);
          ui->actionEthercat_exit->setEnabled(false);
          ui->actionEthercat_scan->setEnabled(true);
+         ui->actionEthercat_output->setEnabled(true);
      }
+}
+
+void MainWindow::on_actionEthercat_output_triggered()
+{
+    QString dir = "";
+    dir = QFileDialog::getExistingDirectory(this, "请选择输出路径...", "./");//如果没有选择路径就会为空
+    if(!dir.isEmpty()){
+        _view_main->Generate_UserCode(dir);
+//          qDebug() << dir;
+    }
+
+
 }
 
 void MainWindow::on_actionAbout_triggered()
