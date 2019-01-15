@@ -152,7 +152,16 @@ int MainFormView::Save_setting(const QString &path){
 
    setting.beginGroup(tr("Path"));
 //   setting.setValue("GcodePath",m_GcodePath);//设置key和value，也就是参数和值
-   setting.setValue("PluginPath",m_pluginDir);
+   //更改成相对地址
+   QString curPath = QDir::currentPath();
+   if(m_pluginDir.contains(curPath)){//如果在文件夹内，采用相对地址
+       QString relPluginPath = "./" + m_pluginDir.mid(curPath.length()+1);
+       setting.setValue("PluginPath",relPluginPath);
+   }
+   else{//绝对地址
+       setting.setValue("PluginPath",m_pluginDir);
+   }
+
 //   setting.setValue("remeber",true);
    setting.endGroup();//节点结束
 

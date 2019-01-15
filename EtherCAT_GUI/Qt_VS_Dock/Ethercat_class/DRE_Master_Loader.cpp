@@ -25,6 +25,13 @@ DRE_Master* DRE_Master_Loader::Master_load(const QString &fileName)
     // 返回插件的根组件对象
     QObject *pPlugin = m_Plugin_Loader->instance();
     if (pPlugin != Q_NULLPTR) {
+        QJsonObject json = m_Plugin_Loader->metaData().value("MetaData").toObject();
+        QString plugin_type =  json.value("type").toVariant().toString();
+        if(plugin_type.compare("Master")){//不是主站
+//            qDebug() <<"OK";
+//            QMessageBox::information(this,tr("Information"),tr("Plugin type is not \"Master\" !"));
+            return nullptr;
+        }
        // 访问感兴趣的接口
        DRE_Master *master = qobject_cast<DRE_Master *>(pPlugin);
        if (master != Q_NULLPTR) {

@@ -80,13 +80,30 @@ int GeneralTab_P::Load_setting(const QString &path)
                 plc_period = 10;
             }
 
-            user_form_generalTab->setMaster_adapterName(master_adapterName);
-            user_form_generalTab->setMaster_adapterDesc(master_adapterDesc);
-            //bind to master
-            user_form_generalTab->master->set_CurrentAdapter(master_adapterName,master_adapterDesc);
-
             user_form_generalTab->master->set_PLC_Period(plc_period);
-            user_form_generalTab->get_ComboBox(Form_GeneralTab::Master_periodPLC_c)->setCurrentIndex(plc_period-1);
+            user_form_generalTab->get_ComboBoxPtr(Form_GeneralTab::Master_periodPLC_c)->setCurrentIndex(plc_period-1);
+
+            if(!master_adapterName.isEmpty()){//存在保存的适配器
+                if(user_form_generalTab->master->Find_adapter()){//判断存储的适配器是否有效
+                    user_form_generalTab->Master_AdapterFind_Handle();//将list添加到UI
+
+                    QStringList adapter_list = user_form_generalTab->master->get_AdapterName();
+                    if(adapter_list.contains(master_adapterName)){
+                        user_form_generalTab->setMaster_adapterName(master_adapterName);
+                        user_form_generalTab->setMaster_adapterDesc(master_adapterDesc);
+                        //bind to master
+                        user_form_generalTab->master->set_CurrentAdapter(master_adapterName,master_adapterDesc);
+                    }
+                    else{
+                        QMessageBox::warning(get_UIWidgetPtr(),tr("Invalid Adapter"),tr("Please Search again!"));
+                    }
+                }
+                else{
+                        QMessageBox::warning(get_UIWidgetPtr(),tr("Adapter is not found"),tr("Please Check it and Search again!"));
+                }
+            }
+
+
     //        qDebug() << m_GcodePath<<m_pluginDir;
         }
 

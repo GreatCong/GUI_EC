@@ -209,7 +209,20 @@ QLineEdit *Form_GeneralTab::get_LineEditPtr(lineEdits_choose choose)
     }
 }
 
-QComboBox *Form_GeneralTab::get_ComboBox(ComboBox_choose choose)
+QListWidget *Form_GeneralTab::get_ListWidgetPtr(ListWidget_choose choose)
+{
+    switch(choose){
+    case Master_Aadapter_L:
+        return ui->listWidget_AdapterList;
+        break;
+    default:
+        QMessageBox::critical(this,tr("Form_GeneralTab ListWidget"),tr("Return NULL!"));
+        return NULL;
+        break;
+    }
+}
+
+QComboBox *Form_GeneralTab::get_ComboBoxPtr(ComboBox_choose choose)
 {
     switch(choose){
     case Master_periodPLC_c:
@@ -222,21 +235,27 @@ QComboBox *Form_GeneralTab::get_ComboBox(ComboBox_choose choose)
     }
 }
 
-/*********************** 槽函数 **************************************/
-
-void Form_GeneralTab::on_pushButton_AdapterFind_clicked()
-{
-    master->Find_adapter();
-    ui->listWidget_AdapterList->clear();
+void Form_GeneralTab::Master_AdapterFind_Handle(){
+    get_ListWidgetPtr(Master_Aadapter_L)->clear();
+//    ui->listWidget_AdapterList->clear();
     My_LisetViewItem *item;
     int index = 0;
     foreach (const QString &str, master->get_AdapterDescription())
     {
         item = new My_LisetViewItem(str);
         item->current_index = index++;
-        ui->listWidget_AdapterList->addItem(item);
+        get_ListWidgetPtr(Master_Aadapter_L)->addItem(item);
 //        qDebug() << QString("%1").arg(str);
     }
+}
+
+
+/*********************** 槽函数 **************************************/
+
+void Form_GeneralTab::on_pushButton_AdapterFind_clicked()
+{
+    master->Find_adapter();
+   Master_AdapterFind_Handle();
 }
 
 ///

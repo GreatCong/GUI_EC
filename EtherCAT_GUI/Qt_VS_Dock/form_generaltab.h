@@ -43,6 +43,10 @@ public:
         Master_periodPLC_c,
     }ComboBox_choose;
 
+    typedef enum{
+        Master_Aadapter_L,
+    }ListWidget_choose;
+
     QTableWidget *table;
     DRE_Master *master;
     const QString getMaster_adapterName();
@@ -52,7 +56,9 @@ public:
 
     QPushButton *get_ButtonPtr(buttons_choose choose);
     QLineEdit *get_LineEditPtr(lineEdits_choose choose);
-    QComboBox *get_ComboBox(ComboBox_choose choose);
+    QComboBox *get_ComboBoxPtr(ComboBox_choose choose);
+    QListWidget *get_ListWidgetPtr(ListWidget_choose choose);
+    void Master_AdapterFind_Handle();
 private slots:
     void on_pushButton_AdapterFind_clicked();
 
