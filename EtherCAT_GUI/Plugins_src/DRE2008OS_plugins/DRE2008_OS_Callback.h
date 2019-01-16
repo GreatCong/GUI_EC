@@ -26,7 +26,18 @@ public:
        OS_CH1_CH2,
        OS_CH1_CH4,
        OS_CH1_CH8
-    }OS_CH;
+    }OS_CH_Choose;
+
+    typedef enum{
+        AD_CH1,
+        AD_CH2,
+        AD_CH3,
+        AD_CH4,
+        AD_CH5,
+        AD_CH6,
+        AD_CH7,
+        AD_CH8
+    }AD_CH_Choose;
 
     typedef enum{
         Error_None = 0,

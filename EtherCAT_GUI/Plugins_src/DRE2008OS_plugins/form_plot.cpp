@@ -199,6 +199,9 @@ void Form_plot::on_lineEdit_Sample_Rate_editingFinished()
     if(rate >=1 && rate <= 40){
         get_DialPtr(Measure_SampleRate_d)->setValue(rate);
     }
+    else{
+        get_LineEditPtr(Measure_SampleRate_e)->setText("20");//设置成默认的20kHz
+    }
 
 //    qDebug() << "arg1";
 }
@@ -209,6 +212,9 @@ void Form_plot::on_lineEdit_DisplayNum_editingFinished()
     int dis_num = dis_str.toInt();
     if(dis_num >=10 && dis_num <= 1024*10){
         get_DialPtr(Measure_DisplayNum_d)->setValue(dis_num);
+    }
+    else{
+        get_LineEditPtr(Measure_DisplayNum_e)->setText("1024");
     }
 //    qDebug() << "arg2";
 }

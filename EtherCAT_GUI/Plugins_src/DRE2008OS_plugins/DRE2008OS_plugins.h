@@ -16,6 +16,8 @@ class DRE2008OS_plugin : public QObject,EtherCAT_UserApp
     Q_INTERFACES(EtherCAT_UserApp)
 private:  
     ~DRE2008OS_plugin();
+private:
+    int Check_SampleParameter(int OS_ch, int AD_ch, int sampleRate);
 
     Form_plot *m_userWidget;
     DRE2008_OS_Callback *m_userCallback;

@@ -16,7 +16,61 @@ DRE2008OS_plugin::DRE2008OS_plugin(QObject *parent) :
 }
 
 DRE2008OS_plugin::~DRE2008OS_plugin(){
-//    delete m_userWidget;
+    //    delete m_userWidget;
+}
+
+int DRE2008OS_plugin::Check_SampleParameter(int OS_ch,int AD_ch,int sampleRate)
+{
+    int ret = 0;
+
+    switch(OS_ch){
+    case DRE2008_OS_Callback::OS_CH1:
+        if(AD_ch > DRE2008_OS_Callback::AD_CH1){
+            QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("AD Channel is invalid!"));
+            ret = -1;
+        }
+        break;
+    case DRE2008_OS_Callback::OS_CH1_CH2:
+        if(AD_ch > DRE2008_OS_Callback::AD_CH2){
+            QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("AD Channel is invalid!"));
+            ret = -1;
+        }
+        else{
+            if(sampleRate > 20){
+                QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("SampleRate is invalid!"));
+                ret = -2;
+            }
+        }
+        break;
+    case DRE2008_OS_Callback::OS_CH1_CH4:
+        if(AD_ch > DRE2008_OS_Callback::AD_CH4){
+            QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("AD Channel is invalid!"));
+            ret = -1;
+        }
+        else{
+            if(sampleRate > 10){
+                QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("SampleRate is invalid!"));
+                ret = -2;
+            }
+        }
+        break;
+    case DRE2008_OS_Callback::OS_CH1_CH8:
+//        if(m_userCallback->m_AD_Channel > DRE2008_OS_Callback::AD_CH8){
+//            QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("AD Channel is invalid!"));
+//        }
+        if(sampleRate > 5){
+            QMessageBox::warning(get_UIWidgetPtr(),tr("Warning"),tr("SampleRate is invalid!"));
+            ret = -2;
+        }
+        break;
+    case DRE2008_OS_Callback::OS_NONE:
+        break;
+    default:
+        break;
+
+    }
+
+    return ret;
 }
 
 void DRE2008OS_plugin::Init_Cores()
@@ -71,7 +125,7 @@ void DRE2008OS_plugin::plot_pushButton_PlotStop_clicked()
 
 /******************* SLOTs *********************************/
 void DRE2008OS_plugin::user_timeout_handle(){
-    int display_num = 1024*8;
+    int display_num = 1024*4;
     static QVector<double> m_x(display_num),m_y(display_num);
 
     m_userWidget->get_LineEditPtr(Form_plot::Measure_ErrState_e)->setText(m_userCallback->ErrorState_ToString());//显示Error
@@ -96,28 +150,47 @@ void DRE2008OS_plugin::user_timeout_handle(){
 }
 
 void DRE2008OS_plugin::plot_dial_SampleRate_valueChanged(int value)
-{
-    m_userCallback->m_SamplingRate = value;
-    m_userWidget->get_LineEditPtr(Form_plot::Measure_SampleRate_e)->setText(QString::number(m_userCallback->m_SamplingRate));
+{ 
+
+    if(Check_SampleParameter(m_userCallback->m_OS_Channel,m_userCallback->m_AD_Channel,value) < 0){//恢复上一次的值
+        m_userWidget->get_DialPtr(Form_plot::Measure_SampleRate_d)->setValue(m_userCallback->m_SamplingRate);
+    }
+    else{
+        m_userCallback->m_SamplingRate = value;
+        m_userWidget->get_LineEditPtr(Form_plot::Measure_SampleRate_e)->setText(QString::number(m_userCallback->m_SamplingRate));
+    }
+
 }
 
 void DRE2008OS_plugin::plot_dial_DisplayNum_valueChanged(int value)
 {
+
     m_plotDisplay_Num = value;
     m_userWidget->get_LineEditPtr(Form_plot::Measure_DisplayNum_e)->setText(QString::number(m_plotDisplay_Num));
+
 }
 
 void DRE2008OS_plugin::plot_combobox_ADchannel_currentIndexChanged(int index)
 {
    //参数从0开始,index也是从0开始
 //    qDebug() << index;
-    m_userCallback->m_AD_Channel = index;
+    if(Check_SampleParameter(m_userCallback->m_OS_Channel,index,m_userCallback->m_SamplingRate) < 0){//恢复上一次的值
+         m_userWidget->get_comboBoxptr(Form_plot::Measure_ADchannel_c)->setCurrentIndex(m_userCallback->m_AD_Channel);
+    }
+    else{
+         m_userCallback->m_AD_Channel = index;
+    }
 }
 
 void DRE2008OS_plugin::plot_combobox_OSchannel_currentIndexChanged(int index)
 {
    //参数从0开始
-    m_userCallback->m_OS_Channel = index;
+    if(Check_SampleParameter(index,m_userCallback->m_AD_Channel,m_userCallback->m_SamplingRate) < 0){//恢复上一次的值
+        m_userWidget->get_comboBoxptr(Form_plot::Measure_OSchannel_c)->setCurrentIndex(m_userCallback->m_OS_Channel);
+    }
+    else{
+        m_userCallback->m_OS_Channel = index;
+    }
 }
 
 void DRE2008OS_plugin::callback_Master_RunStateChanged(bool isRun)

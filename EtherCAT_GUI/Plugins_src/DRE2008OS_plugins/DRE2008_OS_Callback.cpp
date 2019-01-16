@@ -18,7 +18,7 @@ DRE2008_OS_Callback::DRE2008_OS_Callback(QObject *parent) : QObject(parent),Ethe
     m_measure_Q = new QQueue<int16_t>();
     m_OS_Channel = OS_CH1; //超采样通道设置
     m_SamplingRate = 20; //采样率设置(最大40Khz)
-    m_AD_Channel = 0;
+    m_AD_Channel = AD_CH1;
 
     m_ErrState = Error_None;
 
