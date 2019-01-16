@@ -30,6 +30,9 @@ win32{
   LIBS += Winmm.lib
 }
 
+#EtherCAT
+INCLUDEPATH += $$PWD/Ethercat_class
+
 SOURCES += \
     $$PWD/Ethercat_class/MMTimer_RTwin.cpp \
     $$PWD/Ethercat_class/MMTimer_RT.cpp \
@@ -43,12 +46,16 @@ HEADERS += \
     $$PWD/Ethercat_class/MMTimer_RT.h \
     $$PWD/Ethercat_class/Ethercat_Utile.h \
     $$PWD/Ethercat_class/RTTimer.h \
-    EtherCAT_UserApp.h \
     $$PWD/Ethercat_class/DRE_Master_Loader.h \
     $$PWD/Ethercat_class/DRE_Master.h
 
-INCLUDEPATH += $$PWD/Ethercat_class
+#plugin
+INCLUDEPATH += $$PWD/Plugin_common
 
+HEADERS += \
+    $$PWD/Plugin_common/EtherCAT_UserApp.h
+
+#GeneralTab
 SOURCES += \
     GeneralTab_P.cpp \
     form_generaltab.cpp
@@ -56,6 +63,7 @@ HEADERS += \
     GeneralTab_P.h \
     form_generaltab.h
 
+#Others
 SOURCES += \
         main.cpp \
         mainwindow.cpp \

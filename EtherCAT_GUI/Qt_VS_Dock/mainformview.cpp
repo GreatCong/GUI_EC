@@ -220,7 +220,7 @@ int MainFormView::Generate_UserCode(QString &path){
         int num;
 
     foreach (Ethercat_Slave slave, *(m_master->get_SlaveListPtr())) {
-        txtOutput << " /* " + slave.m_name + " Definition" + " */" << endl;
+        txtOutput << " /* DRE_SLave_" + QString::number(slave.m_slave_index) + " , " + slave.m_name + " Definition */" << endl;
         txtOutput << enum_header << endl;
         //以enum的形式输出
 //        mDeviceTree->Add_LeftTree_Slaves(slave.m_slave_index,slave.m_name);

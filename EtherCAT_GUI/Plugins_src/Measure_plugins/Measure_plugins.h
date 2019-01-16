@@ -2,7 +2,7 @@
 #define MEASURE_PLUGIN_H
 
 #include <QObject>
-#include "../../Qt_VS_Dock/EtherCAT_UserApp.h"
+#include "../../Qt_VS_Dock/Plugin_common/EtherCAT_UserApp.h"
 #include "form_plot.h"
 
 class Measure_plugin : public QObject,EtherCAT_UserApp

@@ -7,3 +7,4 @@ SUBDIRS += QT_VS_Dock \
 SUBDIRS += Plugins_src/User_plugins \
            Plugins_src/Control_Plugins \
            Plugins_src/Measure_plugins \
+           Plugins_src/DRE2008OS_plugins

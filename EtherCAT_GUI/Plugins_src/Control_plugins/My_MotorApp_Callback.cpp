@@ -1,7 +1,7 @@
 ﻿#include "My_MotorApp_Callback.h"
 #include <Qdebug>
 
-My_MotorApp_Callback::My_MotorApp_Callback(QObject *parent): QObject(parent)
+My_MotorApp_Callback::My_MotorApp_Callback(QObject *parent): QObject(parent),Ethercat_Callback()
 {
     this->Master_ReleaseAddress();//初始化指针为NULL
     memset(loop_count,0,sizeof(loop_count));

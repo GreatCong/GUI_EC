@@ -130,7 +130,6 @@ public:
 
     void Arm_motion_reset();
 private:
-    char *m_Master_addressBase;
     Stepper_control m_Stepper_control;
 
     void Motor_Reset();

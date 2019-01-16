@@ -112,7 +112,7 @@ void MainFormView::mPlugins_item_Clicked(QListWidgetItem *item)
 void MainFormView::Plugins_Manager_clicked()
 {
   QString dir = "";
-  dir = QFileDialog::getExistingDirectory(this, "请选择插件路径...", "./");//如果没有选择路径就会为空
+  dir = QFileDialog::getExistingDirectory(this, "请选择插件路径...", m_pluginDir);//如果没有选择路径就会为空
   if(!dir.isEmpty()){
       m_pluginDir = dir;
 //        qDebug() << m_pluginDir;

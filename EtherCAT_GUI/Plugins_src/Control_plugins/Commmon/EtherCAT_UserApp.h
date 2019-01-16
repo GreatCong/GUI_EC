@@ -10,18 +10,20 @@
 class Ethercat_Callback
 {
 public:
-    Ethercat_Callback() {}
+    Ethercat_Callback() { m_slaveCount = 0; m_Master_addressBase = nullptr; }
 public:
     virtual void Master_AppLoop_callback() = 0;
     virtual void Master_AppStart_callback() = 0;
     virtual void Master_AppStop_callback() = 0;
-    virtual void Master_ReleaseAddress() =0;
-    virtual int Master_setAdressBase(char* address) = 0;
+
+    virtual void Master_ReleaseAddress(){ m_Master_addressBase = nullptr; }
+    virtual int Master_setAdressBase(char* address){ m_Master_addressBase = address; return 0; }
 
     virtual int Master_getSlaveCount() {return m_slaveCount;}
     virtual void Master_setSlaveCount(int num) {m_slaveCount = num;}
 protected:
     int m_slaveCount;
+    char *m_Master_addressBase;
 };
 
 //class EtherCAT_Message : public QObject

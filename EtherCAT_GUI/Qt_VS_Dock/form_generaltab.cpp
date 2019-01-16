@@ -142,7 +142,13 @@ void Form_GeneralTab::Load_master(){
 //        m_master_Loader->set_pluginDir("./");
 //     m_master_Loader->set_pluginDir("../../../plugins/");
      m_master_Loader->set_pluginDir(pluginDir);
+
+#ifdef Q_OS_WIN
     master = m_master_Loader->Master_load("DRE_Master.dll");
+#else//Q_OS_UNIX
+    master = m_master_Loader->Master_load("DRE_Master.so");
+#endif
+
     if(master == nullptr){
         QMessageBox::critical(this,tr("Information"),tr("DRE_Master.dll is not Found or Invalid!"));
     }
