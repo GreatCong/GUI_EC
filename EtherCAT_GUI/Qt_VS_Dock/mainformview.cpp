@@ -16,7 +16,11 @@ MainFormView::MainFormView(QWidget *parent) :
 
     this->Init_Cores();
     this->Init_TestCores();//测试的对象初始化
-    this->EthercatApp_init();   
+    this->EthercatApp_init();
+
+    //输出版本信息
+    m_bottomText->clear();
+    m_bottomText->appendPlainText(tr("Master:")+tr(MASTER_VERSION_CODE)+tr(" by lcj"));
 
     plugin_userApps = nullptr;
     m_Plugin_Loader = nullptr;
@@ -376,6 +380,7 @@ bool MainFormView::LoadPlugins(const QString &fileName)
                mtabWeidgetItem_UserApps->layout()->addWidget(plugin_default_UI);
            }
            else{
+//               qDebug() << mtabWeidgetItem_UserApps->width() << mtabWeidgetItem_UserApps->height();
                 mtabWeidgetItem_UserApps->layout()->addWidget(plugin_userApps->get_UIWidgetPtr());
            }
 

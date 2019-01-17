@@ -5,8 +5,6 @@
 #include <QTextEdit>
 #include <QDebug>
 
-#define VERSION_CODE "Version 1.1 beta"
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -209,7 +207,7 @@ void MainWindow::on_actionEthercat_output_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::information(this,"About",VERSION_CODE);
+    QMessageBox::information(this,"About",MASTER_VERSION_CODE);
 }
 
 void MainWindow::View_UserWindows_CriticalError(int error)

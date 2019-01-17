@@ -104,12 +104,27 @@ int MainFormView::Master_scan(){
 //        int slaveItem_count = 0;
 //        mDeviceTree->Add_LeftTree_Master();
         plugin_userApps->get_CallbackPtr()->Master_setSlaveCount(m_master->Master_getSlaveCount());
+        QList<Master_Address_t> addr_list;
+        Master_Address_t addr = {-1,-1};//默认赋一个初值
+        addr_list.clear();
 
         foreach (Ethercat_Slave slave, *(m_master->get_SlaveListPtr())) {
             //qDebug() << slave.dump_data(true);
             //TextList_append(m_bottomText,slave.dump_data(true));
             //m_tableView_slaveMSG->append_RawData(slave_count++,slave.dump_data());
             mDeviceTree->Add_LeftTree_Slaves(slave.m_slave_index,slave.m_name);
+            addr.inputs_offset = -1;
+            addr.outputs_offset = -1;
+
+            if(slave.input_list.size() > 0){//传递input和output地址
+                addr.inputs_offset = slave.input_list.at(0).m_addr_offset;
+            }
+            if(slave.output_list.size() > 0){//传递input和output地址
+                addr.outputs_offset = slave.output_list.at(0).m_addr_offset;
+            }
+            addr_list.append(addr);
+
+
             foreach (Ethercat_SlaveMSG_Item input, slave.input_list) {
                 //qDebug() << input.dump_data(true);
 //                TextList_append(m_bottomText,input.dump_data(true));
@@ -124,6 +139,8 @@ int MainFormView::Master_scan(){
             }
 
         }
+
+        plugin_userApps->get_CallbackPtr()->Master_setAddressList(addr_list);//设置addr_list到插件
 
         //设置EtherCAT状态显示
         general_xx->Master_UI_Scan();

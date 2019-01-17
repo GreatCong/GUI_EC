@@ -145,8 +145,14 @@ void Form_GeneralTab::Load_master(){
 
 #ifdef Q_OS_WIN
     master = m_master_Loader->Master_load("DRE_Master.dll");
+    if(master == nullptr){
+        master = m_master_Loader->Master_load("DRE_Master_d.dll");//方便调试库的加载
+    }
 #else//Q_OS_UNIX
     master = m_master_Loader->Master_load("DRE_Master.so");
+    if(master == nullptr){
+        master = m_master_Loader->Master_load("DRE_Master_debug.so");//方便调试库的加载
+    }
 #endif
 
     if(master == nullptr){

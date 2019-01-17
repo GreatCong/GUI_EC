@@ -4,6 +4,12 @@
 #include <Qwidget>
 #include <QtPlugin>
 #include <QObject>
+#include <QList>
+
+typedef struct{
+    int inputs_offset;//如果返回-1,则表示没有input变量
+    int outputs_offset;//如果返回-1,则表示没有output变量
+}Master_Address_t;
 
 class Ethercat_Callback
 {
@@ -19,9 +25,15 @@ public:
 
     virtual int Master_getSlaveCount() {return m_slaveCount;}
     virtual void Master_setSlaveCount(int num) {m_slaveCount = num;}
+
+    //未测试函数
+    virtual const QList<Master_Address_t> Master_getAddressList() {return m_Master_addressList;}
+    virtual void Master_setAddressList(const QList<Master_Address_t> addrList) {m_Master_addressList = addrList;}
+    //未测试函数结束
 protected:
     int m_slaveCount;
     char *m_Master_addressBase;
+    QList<Master_Address_t> m_Master_addressList;
 };
 
 class EtherCAT_Message : public QObject
