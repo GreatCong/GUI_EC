@@ -24,8 +24,8 @@ void MainFormView::Init_FrameRight_Content()
     mTableWidget_property = new QTableWidget(this);
     mTableWidget_property->setColumnCount(2);
     mTableWidget_property->setHorizontalHeaderLabels(QStringList()<<tr("Index")<<tr("Content"));
-    mTableWidget_property->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);//设置等宽
-//    mTableWidget_property->horizontalHeader()->setStretchLastSection(true);
+    //mTableWidget_property->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);//设置等宽
+    mTableWidget_property->horizontalHeader()->setStretchLastSection(true);
 //    mTableWidget_property->insertRow(0);
 //    mTableWidget_property->insertRow(1);
 //    mTableWidget_property->insertRow(2);

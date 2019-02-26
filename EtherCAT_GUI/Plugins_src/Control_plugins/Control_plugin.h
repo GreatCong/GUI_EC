@@ -63,6 +63,8 @@ private slots:
 
     void ControlTab_checkThetaDis_stateChange(int arg);
     void ControlTab_jog_clicked(int button);
+    void ControlTab_MasterIndex_currentIndexChanged(int index);
+    void ControlTab_MasterIndex_highlighted(int index);
 
     void MotorCallback_MasterQuit_sig(bool isQuit);
     void ControlTab_keyPressEvent(QKeyEvent *event);

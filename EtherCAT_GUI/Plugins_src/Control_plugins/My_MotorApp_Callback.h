@@ -15,7 +15,7 @@
 
 #define DEFAULT_X_STEPS_PER_MM 			89.29//86.48f
 #define DEFAULT_Y_STEPS_PER_MM 			88.90//89.29f
-#define DEFAULT_Z_STEPS_PER_MM 			89.33//90.87f//86.48f
+#define DEFAULT_Z_STEPS_PER_MM 			89.00//90.87f//86.48f
 
 #define STEP_BIT(n) 					(1 << n) 				//位mask
 #define STEP_BIT_SetTrue(x,mask) 	(x |= mask)				//该位设置为真
@@ -74,6 +74,8 @@ public:
     bool m_sys_reset;
     int32_t m_sys_position[AXIS_N];
     float m_Step_perMM[AXIS_N];
+
+    int m_slave_index;
 
     ARM_Motion_s m_ARM_Motion_test;
     bool m_RenewST_init;//自动运行的激励标志位

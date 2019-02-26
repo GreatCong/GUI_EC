@@ -29,7 +29,7 @@
 #include "MMTimer_RTwin.h"
 #endif
 
-#define MASTER_VERSION_CODE "Version 1.1 beta"
+#define MASTER_VERSION_CODE "Version 1.2 beta"
 
 namespace Ui {
 class MainFormView;

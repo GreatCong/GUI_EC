@@ -329,7 +329,7 @@
            <height>467</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,2">
           <property name="leftMargin">
            <number>1</number>
           </property>
@@ -508,7 +508,7 @@
                    <string>Y_U</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
+                   <iconset resource="../../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Up.png</normaloff>:/Control/Resource/Control/Dir_Up.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -537,7 +537,7 @@
                    <string>Z_D</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
+                   <iconset resource="../../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Down.png</normaloff>:/Control/Resource/Control/Dir_Down.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -579,7 +579,7 @@
                    <string>Z_U</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
+                   <iconset resource="../../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Up.png</normaloff>:/Control/Resource/Control/Dir_Up.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -608,7 +608,7 @@
                    <string>X_U</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
+                   <iconset resource="../../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Left.png</normaloff>:/Control/Resource/Control/Dir_Left.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -637,7 +637,7 @@
                    <string>Y_D</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
+                   <iconset resource="../../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Down.png</normaloff>:/Control/Resource/Control/Dir_Down.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -666,7 +666,7 @@
                    <string>X_D</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../QT_VS_Dock/res_icons.qrc">
+                   <iconset resource="../../QT_VS_Dock/res_icons.qrc">
                     <normaloff>:/Control/Resource/Control/Dir_Right.png</normaloff>:/Control/Resource/Control/Dir_Right.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -706,6 +706,31 @@
             </layout>
            </widget>
           </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_Master">
+            <property name="title">
+             <string>Master</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Slave_Index</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox_SlaveIndex">
+               <item>
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
          </layout>
         </widget>
        </widget>
@@ -716,7 +741,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../QT_VS_Dock/res_icons.qrc"/>
+  <include location="../../QT_VS_Dock/res_icons.qrc"/>
  </resources>
  <connections/>
 </ui>

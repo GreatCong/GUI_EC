@@ -31,15 +31,18 @@ CONFIG(debug,debug|release):{
 unix:TARGET=$$join(TARGET,,,_debug)
 win32:TARGET=$$join(TARGET,,,_d)
 CONFIG += console
+#LIBS += $$PWD/Ethercat_class/DRE_Master_Loader_d.lib
 }
 else {
  message("release")
+#LIBS += $$PWD/Ethercat_class/DRE_Master_Loader.lib
 }
 
 win32{
   LIBS += Winmm.lib
 }
 
+#LIBS += $$PWD/Ethercat_class/DRE_Master_Loader.lib
 #EtherCAT
 INCLUDEPATH += $$PWD/Ethercat_class
 

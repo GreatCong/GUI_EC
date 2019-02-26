@@ -124,6 +124,9 @@ QGroupBox *Form_ControlTab::get_GroupPtr(group_choose choose)
     case Groups_jog_g:
         return ui->groupBox_Jog;
         break;
+    case Groups_Master_g:
+        return ui->groupBox_Master;
+        break;
     default:
         QMessageBox::critical(this,tr("Form_ControlTab Group"),tr("Return NULL!"));
         return NULL;
@@ -143,6 +146,19 @@ QCheckBox *Form_ControlTab::get_CheckBoxPtr(checkBox_choose choose)
         break;
     }
 
+}
+
+QComboBox *Form_ControlTab::get_ComboBoxPtr(comboBox_choose choose)
+{
+    switch(choose){
+    case comboBox_SlaveIndex_com:
+        return ui->comboBox_SlaveIndex;
+        break;
+    default:
+        QMessageBox::critical(this,tr("Form_ControlTab ComboBox"),tr("Return NULL!"));
+        return NULL;
+        break;
+    }
 }
 
 void Form_ControlTab::set_LCDnumber_Display(Axis_num num, double data)

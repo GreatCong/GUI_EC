@@ -8,6 +8,10 @@
 #include <QKeyEvent>
 #include <QSettings>
 
+#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8") ///< 最好加上这句，否则乱码
+#endif
+
 //用于解析G代码
 #define PROGRESSMINLINES 10000 //G代码文件的最大行数
 #define PROGRESSSTEP     1000
@@ -38,6 +42,9 @@ void Control_plugin::Init_Cores()
     connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_reloadFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_ReloadGcode_clicked()));
     connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_SendGcode_clicked()));
     connect(user_form_controlTab->get_CheckBoxPtr(Form_ControlTab::check_isThetaDis_c),SIGNAL(stateChanged(int)),this,SLOT(ControlTab_checkThetaDis_stateChange(int)));
+
+    connect(user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com),SIGNAL(currentIndexChanged(int)),SLOT(ControlTab_MasterIndex_currentIndexChanged(int)));
+    connect(user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com),SIGNAL(highlighted(int)),SLOT(ControlTab_MasterIndex_highlighted(int)));
 
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(tr("280.799"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setPlaceholderText(tr("X轴"));
@@ -432,6 +439,39 @@ void Control_plugin::ControlTab_jog_clicked(int button){
     m_motorApp_callback->m_sys_reset = false;
 }
 
+void Control_plugin::ControlTab_MasterIndex_currentIndexChanged(int index)
+{
+   m_motorApp_callback->m_slave_index = index;
+//   qDebug() << index;
+}
+
+void Control_plugin::ControlTab_MasterIndex_highlighted(int index)
+{
+    Q_UNUSED(index);
+
+    static int slave_count_static = 0;
+
+    int slave_count = m_motorApp_callback->Master_getSlaveCount();
+
+    if(slave_count_static == slave_count) return;//让currentIndexChanged也可以工作
+    else{
+        slave_count_static = slave_count;
+        user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com)->clear();
+    //    qDebug() << slave_count;
+
+        if(slave_count == 0){
+          user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com)->addItem("0");
+          return;
+        }
+
+        for(int i=0;i<slave_count;i++){
+            user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com)->addItem(QString::number(i));
+        }
+    }
+
+
+}
+
 void Control_plugin::MotorCallback_MasterQuit_sig(bool isQuit){
     if(isQuit){
         GcodeSendThread->quit();
@@ -439,11 +479,15 @@ void Control_plugin::MotorCallback_MasterQuit_sig(bool isQuit){
         user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_jog_g)->setEnabled(false);
         user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b)->setEnabled(false);
         m_motorApp_callback->Gcode_ReleaseAddress();
+
+        user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_Master_g)->setEnabled(true);//从站选择使能
     }
     else{
         user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_jog_g)->setEnabled(true);
         user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b)->setEnabled(true);
         m_motorApp_callback->Gcode_setAddress(m_GcodeSegment_Q);
+
+        user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_Master_g)->setEnabled(false);//从站选择失能
 
         get_UIWidgetPtr()->setFocus();//如果用键盘测试的话，需要设置焦点
     }

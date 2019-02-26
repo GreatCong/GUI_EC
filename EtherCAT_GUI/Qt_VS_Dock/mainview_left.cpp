@@ -107,7 +107,8 @@ void MainFormView::mDeviceTree_DoubleClicked(const QModelIndex index)
                 int slave_index = var.toInt() - MARK_SLAVE-1;
                 int slaveItem_count = 0;
                 Ethercat_Slave slave = m_master->get_SlaveListPtr()->at(slave_index);
-                m_tableView_slaveMSG->append_RawData(slave_index,slave.dump_data());
+               // m_tableView_slaveMSG->append_RawData(slave_index,slave.dump_data());
+                m_tableView_slaveMSG->append_RawData(0,slave.dump_data());
 
                 foreach (Ethercat_SlaveMSG_Item input, slave.input_list) {
                      m_tableView_slaveItemMSG->append_RawData(slaveItem_count++,input.dump_data());

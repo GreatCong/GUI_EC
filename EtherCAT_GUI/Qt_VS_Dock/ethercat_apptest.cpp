@@ -103,16 +103,19 @@ int MainFormView::Master_scan(){
 //        int slave_count = 0;
 //        int slaveItem_count = 0;
 //        mDeviceTree->Add_LeftTree_Master();
+//        qDebug() << m_master->Master_getSlaveCount();
         plugin_userApps->get_CallbackPtr()->Master_setSlaveCount(m_master->Master_getSlaveCount());
         QList<Master_Address_t> addr_list;
         Master_Address_t addr = {-1,-1};//默认赋一个初值
         addr_list.clear();
 
+        int master_index = 1;//暂时只考虑1个主站的情况
+
         foreach (Ethercat_Slave slave, *(m_master->get_SlaveListPtr())) {
             //qDebug() << slave.dump_data(true);
             //TextList_append(m_bottomText,slave.dump_data(true));
             //m_tableView_slaveMSG->append_RawData(slave_count++,slave.dump_data());
-            mDeviceTree->Add_LeftTree_Slaves(slave.m_slave_index,slave.m_name);
+            mDeviceTree->Add_LeftTree_Slaves(master_index,slave.m_name);
             addr.inputs_offset = -1;
             addr.outputs_offset = -1;
 
@@ -129,13 +132,13 @@ int MainFormView::Master_scan(){
                 //qDebug() << input.dump_data(true);
 //                TextList_append(m_bottomText,input.dump_data(true));
                  //m_tableView_slaveItemMSG->append_RawData(slaveItem_count++,input.dump_data());
-                mDeviceTree->Add_LeftTree_SlaveMessage(1,slave.m_slave_index,MARK_SLAVE_ITEM_INPUT - MARK_SLAVE_ITEM,input.m_name);
+                mDeviceTree->Add_LeftTree_SlaveMessage(master_index,slave.m_slave_index,MARK_SLAVE_ITEM_INPUT - MARK_SLAVE_ITEM,input.m_name);
             }
             foreach (Ethercat_SlaveMSG_Item output, slave.output_list) {
-               // qDebug() << output.dump_data(true);
+                //qDebug() << output.dump_data(true);
 //                TextList_append(m_bottomText,output.dump_data(true));
                 //m_tableView_slaveItemMSG->append_RawData(slaveItem_count++,output.dump_data());
-                mDeviceTree->Add_LeftTree_SlaveMessage(1,slave.m_slave_index,MARK_SLAVE_ITEM_OUTPUT - MARK_SLAVE_ITEM,output.m_name);
+                mDeviceTree->Add_LeftTree_SlaveMessage(master_index,slave.m_slave_index,MARK_SLAVE_ITEM_OUTPUT - MARK_SLAVE_ITEM,output.m_name);
             }
 
         }

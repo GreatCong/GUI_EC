@@ -19,6 +19,8 @@ My_MotorApp_Callback::My_MotorApp_Callback(QObject *parent): QObject(parent),Eth
     m_RenewST_init = false;//自动运行的激励标志位
     m_RenewST_ready = false;//自动运行的激励标志位
     m_McodeFlag = false;
+
+    m_slave_index = 0;//默认是0
 }
 
 My_MotorApp_Callback::~My_MotorApp_Callback()
@@ -348,9 +350,19 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
 
 void My_MotorApp_Callback::Master_AppStart_callback()
 {
-    output_ptr = (int16_t*)(m_Master_addressBase+0x1a);
-    input_ptr = (uint16_t*)(m_Master_addressBase+0x00);
-    input_MotorStep_ptr = (uint32_t*)(m_Master_addressBase+0x06);
+    //qDebug() << m_Master_addressList[0].inputs_offset << m_Master_addressList[0].outputs_offset;//inputs_offset=0x1a,outputs_offset = 0x00;
+//    foreach (Master_Address_t addrs, m_Master_addressList) {
+//        qDebug() << "input:0x" +QString::number(addrs.inputs_offset,16) << "output:0x" + QString::number(addrs.outputs_offset,16);
+//    }
+
+//    output_ptr = (int16_t*)(m_Master_addressBase+0x1a);
+//    input_ptr = (uint16_t*)(m_Master_addressBase+0x00);
+//    input_MotorStep_ptr = (uint32_t*)(m_Master_addressBase+0x06);
+    //更改根据从站编号获取偏移地址
+    output_ptr = (int16_t*)(m_Master_addressBase+m_Master_addressList[m_slave_index].inputs_offset);
+    input_ptr = (uint16_t*)(m_Master_addressBase+m_Master_addressList[m_slave_index].outputs_offset);
+    input_MotorStep_ptr = (uint32_t*)(m_Master_addressBase+m_Master_addressList[m_slave_index].outputs_offset+0x06);
+
     //设定一个初始值,否则Ethercat会将循环的数值传递到从站
    Motor_Reset();
    *(input_MotorStep_ptr+AXIS_4) = 0;

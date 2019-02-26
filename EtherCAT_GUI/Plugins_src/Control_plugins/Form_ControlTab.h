@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QCheckBox>
+#include <QComboBox>
 
 namespace Ui {
 class Form_ControlTab;
@@ -59,12 +60,18 @@ public:
 
     typedef enum{
        Groups_parameter_g,
-       Groups_jog_g
+       Groups_jog_g,
+       Groups_Master_g
     }group_choose;
 
     typedef enum{
        check_isThetaDis_c
     }checkBox_choose;
+
+    typedef enum{
+       comboBox_SlaveIndex_com
+    }comboBox_choose;
+
 
     typedef enum{
         Axis_X,
@@ -77,6 +84,7 @@ public:
     QLineEdit *get_LineEditGcode(gcode_lineEdit_choose choose);
     QGroupBox *get_GroupPtr(group_choose choose);
     QCheckBox *get_CheckBoxPtr(checkBox_choose choose);
+    QComboBox *get_ComboBoxPtr(comboBox_choose choose);
     void set_LCDnumber_Display(Axis_num num, double data);
 signals:
     void Jog_ButtonDown(int button);

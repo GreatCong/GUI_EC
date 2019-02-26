@@ -3,6 +3,7 @@
 */
 
 #include "my_treeview_device.h"
+#include <QDebug>
 
 My_TreeView_Device::My_TreeView_Device(QWidget *parent) : QTreeView(parent)
 {
