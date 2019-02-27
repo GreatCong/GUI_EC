@@ -165,6 +165,13 @@ public:
 
     static QString Master_stateToString(int state);
 
+    /* 未测试 */
+    virtual int Master_SDOWrite(uint16_t Slave, uint16_t Index, uint8_t SubIndex,
+                                bool CA, int psize, void *p, int Timeout) = 0;
+    virtual int Master_SDORead(uint16_t slave, uint16_t index, uint8_t subindex,
+                               bool CA, int *psize, void *p, int timeout) = 0;
+    /* 未测试 END*/
+
     /* Eterhcat system end */
 
     /* Others */
