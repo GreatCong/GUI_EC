@@ -52,7 +52,9 @@ HEADERS += \
     GcodePreprocessorUtils.h \
     My_MotorApp_Callback.h \
     Commmon/EtherCAT_Message.h \
-    Commmon/EtherCAT_UserApp.h
+    Commmon/EtherCAT_UserApp.h \
+    ARM_Motion.h \
+    Dobot_Motion.h
 
 SOURCES += \
     Control_plugin.cpp \
@@ -61,7 +63,9 @@ SOURCES += \
     GcodeParser.cpp \
     GcodePreprocessorUtils.cpp \
     My_MotorApp_Callback.cpp \
-    Commmon/EtherCAT_Message.cpp
+    Commmon/EtherCAT_Message.cpp \
+    ARM_Motionn.cpp \
+    Dobot_Motion.cpp
 
 RESOURCES += \
     res_icons.qrc

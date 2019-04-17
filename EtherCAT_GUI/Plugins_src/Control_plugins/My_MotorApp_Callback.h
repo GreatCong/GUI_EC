@@ -7,15 +7,7 @@
 #include <QThread>
 
 #include "GcodeParser.h"
-
-//#define ARM_PEINT_DEBUG 1
-#define Printf_MSG qDebug
-
-#define AXIS_N 3 //3轴控制
-
-#define DEFAULT_X_STEPS_PER_MM 			89.29//86.48f
-#define DEFAULT_Y_STEPS_PER_MM 			88.90//89.29f
-#define DEFAULT_Z_STEPS_PER_MM 			89.00//90.87f//86.48f
+#include "Dobot_Motion.h"
 
 #define STEP_BIT(n) 					(1 << n) 				//位mask
 #define STEP_BIT_SetTrue(x,mask) 	(x |= mask)				//该位设置为真
@@ -24,32 +16,6 @@
 #define STEP_BIT_IsTrue(x,mask) 		((x & mask) != 0)		//该位是否真
 #define STEP_BIT_IsFalse(x,mask) 	((x & mask) == 0)		//该位是否假
 
-typedef struct{
-  float arm[AXIS_N];
-  uint8_t transfer_state;
-}ARM_Motion_s;
-
-typedef struct
-{
-  uint32_t Axis_steps[AXIS_N];
-  uint32_t step_event_count;//最大步长
-  uint16_t direction_bits;
-  int Mcode;
-}Stepper_block;
-
-typedef Stepper_block* Stepper_block_t;
-
-typedef struct
-{
-  uint32_t Axis_steps[AXIS_N];
-  uint32_t counter[AXIS_N];
-  uint32_t step_count;
-  uint16_t step_outbits;//支持16轴
-  uint16_t dir_outbits;
-
-  uint16_t exec_block_index;
-  Stepper_block *exec_block;
-}Stepper_control;
 
 class My_MotorApp_Callback : public QObject,public Ethercat_Callback
 {
@@ -69,18 +35,13 @@ public:
     const int16_t* output_ptr;
     uint16_t* input_ptr;
     uint32_t* input_MotorStep_ptr;
-    int loop_count[AXIS_N];
-    QQueue<Stepper_block*> *m_Stepper_block_Q;//定义控制队列
+    int loop_count[Dobot_Motion::AXIS_N];
     bool m_sys_reset;
-    int32_t m_sys_position[AXIS_N];
-    float m_Step_perMM[AXIS_N];
 
     int m_slave_index;
 
-    ARM_Motion_s m_ARM_Motion_test;
-    bool m_RenewST_init;//自动运行的激励标志位
-    bool m_RenewST_ready;//自动运行的激励标志位
-    bool m_McodeFlag;//有Mcode的特殊情况，设置激励标志
+    ARM_Struct *m_ARM_Motion_test;
+    ARM_Struct *m_PositionInit;//笛卡尔坐标系为(0,0,0)的角度
 
     int Planner_BufferLine(float *target, int userData);
 
@@ -131,12 +92,13 @@ public:
     }planner_enum;
 
     void Arm_motion_reset();
+    void Control_QueueClear();
+    void set_RenewST_Ready(bool isReady);
 private:
-    Stepper_control m_Stepper_control;
+
+    Dobot_Motion m_DobotMotion;//Dobot的正反解
 
     void Motor_Reset();
-    ARM_Motion_s calculate_forward(const float *cartesian_theta);
-    ARM_Motion_s calculate_arm(const float *cartesian);
 //    int Planner_BufferLine(float *target, int userData);
     QQueue<Gcode_segment> *m_GcodeSegment_Q;
     bool isRun;
