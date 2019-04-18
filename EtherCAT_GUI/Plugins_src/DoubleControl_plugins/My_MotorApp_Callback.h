@@ -92,6 +92,8 @@ private:
 
     Dobot_Motion m_DobotMotion;//Dobot的正反解
 
+    Dobot_Motion m_DobotMotion1;//Dobot的正反解
+
     void Motor_Reset();
 //    int Planner_BufferLine(float *target, int userData);
     QQueue<Gcode_segment> *m_GcodeSegment_Q;

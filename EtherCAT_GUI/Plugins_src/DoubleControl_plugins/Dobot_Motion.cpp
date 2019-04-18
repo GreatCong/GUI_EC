@@ -207,6 +207,21 @@ int Dobot_Motion::planner_BufferLine(const float * target, int userData, ARM_Sen
     block_new->step_event_count = 0;
 
     memcpy(position_steps, m_sys_position, sizeof(m_sys_position));// sys_position (vector in steps.int32)
+
+    if(userData > Gcode_segment::RobotChange){//如果是切换机器人的G代码
+        //分别计算
+        for(int idx = 0;idx < AXIS_N;idx++){
+
+            block_new->Axis_steps[idx] = 0;
+            block_new->step_event_count = std::max(block_new->step_event_count,block_new->Axis_steps[idx]);
+        }
+        block_new->Mcode = userData;//赋值Mcode
+
+        m_Stepper_block_Q->enqueue(block_new);
+//             qDebug() << userData;
+        return Planner_OK;
+    }
+
     //正解校验
 //    float print_position[3];
 //    for(int i=0;i<3;i++){
@@ -412,7 +427,9 @@ void Dobot_Motion::loopRun()
         //                STEP_BIT_SetFalse(*(input_ptr+step_setting),1<<step_AutoRun_start);//设置自动运行
                     break;
                 default:
-                    qDebug() << "Mcode:"<<m_Stepper_control->exec_block->Mcode;
+                    if(m_Stepper_control->exec_block->Mcode < Gcode_segment::RobotChange){
+                         qDebug() << "Mcode:"<<m_Stepper_control->exec_block->Mcode;
+                    }
                     break;
                 }
 

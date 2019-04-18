@@ -192,7 +192,15 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
        STEP_BIT_SetTrue(*(m_DobotMotion.get_IutputPtr()+step_setting),1<<step_AutoRun_stop);//从站中stop判断在前
        Motor_Reset();
        *(m_DobotMotion.get_Iutput_MotorStepPtr()+AXIS_4) = 0;
-    }   
+    }
+
+    m_DobotMotion1.m_Stepper_control->step_count = *(m_DobotMotion1.get_OutputPtr()+motor_MSG);
+    if(m_sys_reset){//如果用户进行了复位
+       m_DobotMotion1.m_Stepper_control->step_count=0;
+       STEP_BIT_SetTrue(*(m_DobotMotion1.get_IutputPtr()+step_setting),1<<step_AutoRun_stop);//从站中stop判断在前
+       Motor_Reset();
+       *(m_DobotMotion1.get_Iutput_MotorStepPtr()+AXIS_4) = 0;
+    }
 
     //BUG:如果步数比较小,有时候无法自动完成激励
 //    if(m_RenewST_init && (*(output_ptr+error_MSG)==2)){//给一个循环运动的激励
@@ -207,6 +215,13 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
         }
     }
 
+    if(m_DobotMotion1.m_RenewST_init){//给一个循环运动的激励
+        if((*(m_DobotMotion1.get_OutputPtr()+error_MSG)==2) || m_DobotMotion1.m_McodeFlag){
+            m_DobotMotion1.m_RenewST_ready = true;
+            m_DobotMotion1.m_RenewST_init = false;
+            m_DobotMotion1.m_McodeFlag = false;
+        }
+    }
 
 //    if( m_DobotMotion.m_Stepper_control->step_count== 0){//需要获取新的block
 //        if(m_DobotMotion.m_Stepper_block_Q->empty()){
@@ -221,6 +236,7 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
 //     *(m_DobotMotion.get_IutputPtr()+step_setting) = 1;//只是使能，去掉自动运行的标志
 //    }
     m_DobotMotion.loopRun();//根据新的block进行循环运动
+    m_DobotMotion1.loopRun();//根据新的block进行循环运动
 
 
 
@@ -257,6 +273,18 @@ void My_MotorApp_Callback::Master_AppStart_callback()
     m_DobotMotion.set_OutputPtr(output_ptr);
     m_DobotMotion.set_IutputPtr(input_ptr);
     m_DobotMotion.set_Iutput_MotorStepPtr(input_MotorStep_ptr);
+
+    //如果有2个从站
+    if(Master_getSlaveCount() > 1){
+//        qDebug() << "slaveCont=" << Master_getSlaveCount();
+        output_ptr = (int16_t*)(m_Master_addressBase+m_Master_addressList[1].inputs_offset);
+        input_ptr = (uint16_t*)(m_Master_addressBase+m_Master_addressList[1].outputs_offset);
+        input_MotorStep_ptr = (uint32_t*)(m_Master_addressBase+m_Master_addressList[1].outputs_offset+0x06);
+
+        m_DobotMotion1.set_OutputPtr(output_ptr);
+        m_DobotMotion1.set_IutputPtr(input_ptr);
+        m_DobotMotion1.set_Iutput_MotorStepPtr(input_MotorStep_ptr);
+    }
 
     //设定一个初始值,否则Ethercat会将循环的数值传递到从站
    Motor_Reset();
@@ -342,6 +370,7 @@ void My_MotorApp_Callback::Motor_Reset(){
 //    *(input_MotorStep_ptr+motor2_step) = 0;//step2
 //    *(input_MotorStep_ptr+motor3_step) = 0;//step3
     m_DobotMotion.Motor_Reset();
+    m_DobotMotion1.Motor_Reset();
 }
 
 ///
@@ -372,8 +401,8 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData,int rob
         }
         break;
     case 2:
-//        sendState= new ARM_SendState(Dobot_Motion::AXIS_N);
-//        res = m_DobotMotion1.planner_BufferLine(target,userData,sendState);
+        sendState= new ARM_SendState(Dobot_Motion::AXIS_N);
+        res = m_DobotMotion1.planner_BufferLine(target,userData,sendState);
         break;
     case 3:
         break;
@@ -389,6 +418,7 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData,int rob
 ///
 void My_MotorApp_Callback::Arm_motion_reset(){
     m_DobotMotion.Arm_motion_reset();
+    m_DobotMotion1.Arm_motion_reset();
     *m_PositionInit = m_DobotMotion.get_PositionInit();
 }
 
@@ -471,6 +501,7 @@ void My_MotorApp_Callback::GcodeSendThread_Func(Dobot_Motion &dobotMotion){
 void My_MotorApp_Callback::GcodeSendThread_run(){
     while(isRun){
         GcodeSendThread_Func(m_DobotMotion);
+        GcodeSendThread_Func(m_DobotMotion1);
         QThread::msleep(5);
     }
 //    Planner_BufferLine(m_ARM_Motion_test.arm,0);
