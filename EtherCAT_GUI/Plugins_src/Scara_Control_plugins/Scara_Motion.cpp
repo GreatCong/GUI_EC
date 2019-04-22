@@ -1,44 +1,45 @@
-#include "Dobot_Motion.h"
+#include "Scara_Motion.h"
 
 #include "GcodeParser.h"
 
-#define DEFAULT_X_STEPS_PER_UNIT 			88.89f//89.29//86.48f
-#define DEFAULT_Y_STEPS_PER_UNIT 			88.90f//88.90//89.29f
-#define DEFAULT_Z_STEPS_PER_UNIT 			89.00f//89.00//90.87f//86.48f
+#define DEFAULT_X_STEPS_PER_UNIT 			177.78f //大臂20:1
+#define DEFAULT_Y_STEPS_PER_UNIT 			106.67f //小臂12:1
+#define DEFAULT_Z_STEPS_PER_UNIT 			344.48f //升降5:1
 
-//原点的设置是三个步进电机的中心位置的交点
-//#define BIG_ARM_LENGTH 135				//	@大臂长度	135mm
-//#define SMALL_ARM_LENGTH 170			//	@小臂长度	170mm
-//#define HEAD_OFFSET   50				//	@头偏移		50mm
-//#define CENCER_OFFSET 47				//	@中心偏移	47mm
+// Length of inner and outer support arms. Measure arm lengths precisely.
+#define SCARA_LINKAGE_SMALL_OFFSET 45.0f //mm 小臂的偏移
+#define SCARA_LINKAGE_BIG 200.0f //mm 大臂
+#define SCARA_LINKAGE_SMALL 150.0f //mm 小臂
 
-//#define ARM_HIGH_OFFSET 110 // @ 原点到水平的高度110mm
+#define SCARA_LINKAGE_1 SCARA_LINKAGE_BIG //mm 大臂
+#define SCARA_LINKAGE_2 (SCARA_LINKAGE_SMALL+SCARA_LINKAGE_SMALL_OFFSET) //mm 小臂
 
-//#define ARM_OFFSET_X 100 //mm   		//	@X偏移	100mm
-//#define ARM_OFFSET_Y -56 //mm			//	@Y偏移	-56mm
-//#define ARM_OFFSET_Z -56 //mm			//	@Z偏移	-56mm
-//#define ARM_RAD2DEG 57.2957795			//	@转角	57.2957795度
+// SCARA tower offset (position of Tower relative to bed zero position)
+// This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
+//#define SCARA_OFFSET_X -129 //mm
+//#define SCARA_OFFSET_Y 128//mm
+#define SCARA_OFFSET_X -SCARA_LINKAGE_1 //mm
+#define SCARA_OFFSET_Y SCARA_LINKAGE_2//mm
 
-#define BIG_ARM_LENGTH 135				//	@大臂长度	155mm
-#define SMALL_ARM_LENGTH 170			//	@小臂长度	170mm
-#define HEAD_OFFSET   50.2				//	@头偏移	48.8mm
-#define CENCER_OFFSET 62				//	@中心偏移	62mm
-
-#define MANUAL_X_HOME_POS 90.0f
-#define MANUAL_Y_HOME_POS 0.0f
+#define MANUAL_X_HOME_POS 0.0f
+#define MANUAL_Y_HOME_POS 90.0f
 #define MANUAL_Z_HOME_POS 0.0f
 
-//#define ARM_HIGH_OFFSET 110 // @ 原点到水平的高度110mm
-
-//#define ARM_OFFSET_X 100 //mm   		//	@X偏移	100mm
-//#define ARM_OFFSET_Y -56 //mm			//	@Y偏移	-56mm
-//#define ARM_OFFSET_Z -56 //mm			//	@Z偏移	-56mm
 #define ARM_RAD2DEG 57.2957795			//	@转角	57.2957795度
+#define RADIANS(d) ((d)/ARM_RAD2DEG)
+#define DEGREES(r) ((r)*ARM_RAD2DEG)
+
+#define sq(x) (x)*(x)
+
+static float const L1 = SCARA_LINKAGE_1;
+static float const L2 = SCARA_LINKAGE_2;
+static float const L1_2 = sq(SCARA_LINKAGE_1);
+static float const L2_2 = sq(SCARA_LINKAGE_2);
 
 ///
 /// \brief 构造函数初始化
 ///
-Dobot_Motion::Dobot_Motion()
+Scara_Motion::Scara_Motion()
 {
    m_PositionInit = new ARM_Struct(AXIS_N);
    m_Stepper_block_Q = new QQueue<Stepper_block*>();
@@ -47,77 +48,92 @@ Dobot_Motion::Dobot_Motion()
    m_RenewST_init = false;//自动运行的激励标志位
    m_RenewST_ready = false;//自动运行的激励标志位
    m_McodeFlag = false;
+   m_IsAngle_mode=false;
 
    memset(&m_sys_position,0,sizeof(m_sys_position));
    release_IO_ptr();
 }
 
 ///
-/// \brief Dobot反解
+/// \brief Scara反解
 /// \param cartesian_theta
 /// \param cartesian
 /// \return
 ///
-uint8_t Dobot_Motion::calculate_arm(float *cartesian_theta, const float *cartesian)
+uint8_t Scara_Motion::calculate_arm(float *cartesian_theta, const float *cartesian)
 {
-    float TempXY,TempXYZ;
-    float TempX,TempY,TempZ;
+    float SCARA_pos[2];
     uint8_t res_state = 0;
 
-    TempXY=std::sqrt(cartesian[AXIS_X]*cartesian[AXIS_X]
-                +cartesian[AXIS_Y]*cartesian[AXIS_Y]);
-    TempXYZ=std::sqrt((TempXY-CENCER_OFFSET-HEAD_OFFSET)*(TempXY-CENCER_OFFSET-HEAD_OFFSET)
-                +cartesian[AXIS_Z]*cartesian[AXIS_Z]);
+    float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
 
-    if(check_angle(BIG_ARM_LENGTH,SMALL_ARM_LENGTH,TempXYZ)){
-      res_state = 1;//error
+    SCARA_pos[AXIS_X] = -cartesian[AXIS_X] - SCARA_OFFSET_X;  //求世界坐标系下X值并取反
+    SCARA_pos[AXIS_Y] = cartesian[AXIS_Y] + SCARA_OFFSET_Y;  //求世界坐标系下Y值
+
+    SCARA_C2 =   ( sq(SCARA_pos[AXIS_X]) + sq(SCARA_pos[AXIS_Y]) - L1_2 - L2_2 ) /(2*L1*L2);
+      if(SCARA_C2>1) {
+        res_state = 1;//error
         #if ARM_PEINT_DEBUG
         Printf_MSG("[Calculate_arm Error!]\r\n");//打印错误信息
         #endif
-    }
-    else{
-        res_state = 0;//no error
-    }
+        }
+      else{
+          res_state = 0;//no error
+      }
 
-    TempX = std::asin(cartesian[AXIS_Z]/(TempXYZ))+return_angle(BIG_ARM_LENGTH,SMALL_ARM_LENGTH,TempXYZ);
-    TempY = return_angle(BIG_ARM_LENGTH,TempXYZ,SMALL_ARM_LENGTH);
-    TempZ = std::atan(cartesian[AXIS_Y]/cartesian[AXIS_X]);
+    SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
 
+    SCARA_K1 = SCARA_LINKAGE_1 + SCARA_LINKAGE_2 * SCARA_C2;
+    SCARA_K2 = SCARA_LINKAGE_2 * SCARA_S2;
 
-    cartesian_theta[AXIS_X] = TempX*ARM_RAD2DEG;//弧度转化为角度
-    cartesian_theta[AXIS_Y] = 180-cartesian_theta[AXIS_X]-TempY*ARM_RAD2DEG;
-    cartesian_theta[AXIS_Z] = TempZ*ARM_RAD2DEG;
+    //SCARA_theta = (atan(SCARA_pos[AXIS_X]/SCARA_pos[AXIS_Y]) - atan(SCARA_K1/SCARA_K2)) *(-1);//大臂旋转角度，即主臂与-X轴夹角
+    //SCARA_psi   =   atan(SCARA_S2/SCARA_C2);//小臂旋转角度，当Y电机控制小臂相对于世界坐标系旋转角度时使用此公式
+    SCARA_theta = ( atan2f(SCARA_K1, SCARA_K2)-atan2f(SCARA_pos[AXIS_X],SCARA_pos[AXIS_Y]) ) ;//大臂旋转角度，即主臂与-X轴夹角
+    SCARA_psi   =   atan2f(SCARA_S2,SCARA_C2);//小臂旋转角度，当Y电机控制小臂相对于世界坐标系旋转角度时使用此公式
 
-    #if ARM_PEINT_DEBUG
-    Printf_MSG("[Arm_Theta=(%f,%f,%f)]\r\n",cartesian_theta[AXIS_X],cartesian_theta[AXIS_Y],cartesian_theta[AXIS_Z]);
-    #endif
+        if(!m_IsAngle_mode)
+        {
+                cartesian_theta[AXIS_X] = DEGREES(SCARA_theta); //大臂旋转角度转换为弧度
+                cartesian_theta[AXIS_Y] = DEGREES(SCARA_psi);   //小臂旋转角度转换为弧度
+                cartesian_theta[AXIS_Z] = cartesian[AXIS_Z];
+        }
+        else
+        {
+                cartesian_theta[AXIS_X] = cartesian[AXIS_X];
+                cartesian_theta[AXIS_Y] = cartesian[AXIS_Y];
+                cartesian_theta[AXIS_Z] = cartesian[AXIS_Z];
+
+        }
+        #ifdef ARM_PEINT_DEBUG
+        Printf_MSG("[Arm_Theta=(%f,%f,%f)]\r\n",cartesian_theta[AXIS_X],cartesian_theta[AXIS_Y],cartesian_theta[AXIS_Z]);
+        #endif
 
     return res_state;
 }
 
 ///
-/// \brief Dobot正解
+/// \brief Scara正解
 /// \param cartesian
 /// \param cartesian_theta
 /// \return
 ///
-uint8_t Dobot_Motion::calculate_forward(float *cartesian, const float *cartesian_theta)
+uint8_t Scara_Motion::calculate_forward(float *cartesian, const float *cartesian_theta)
 {
-    float x1,y1;
-    float x2,y2;
     uint8_t res_state = 0;
 
-    y1=std::sin(cartesian_theta[AXIS_X]/ARM_RAD2DEG)*BIG_ARM_LENGTH-sin(cartesian_theta[AXIS_Y]/ARM_RAD2DEG)*SMALL_ARM_LENGTH;
+    float x_sin, x_cos, y_sin, y_cos;
 
-    x1=std::cos(cartesian_theta[AXIS_X]/ARM_RAD2DEG)*BIG_ARM_LENGTH+cos(cartesian_theta[AXIS_Y]/ARM_RAD2DEG)*SMALL_ARM_LENGTH;
-    x1=x1+HEAD_OFFSET+CENCER_OFFSET;
+    x_sin = sin(RADIANS(cartesian_theta[AXIS_X])) * L1;
+    x_cos = cos(RADIANS(cartesian_theta[AXIS_X])) * L1;
+    //y_sin = sin(RADIANS(f_scara[AXIS_Y])) * L2;//当Y电机控制小臂相对于世界坐标系旋转角度时使用此公式
+    //y_cos = cos(RADIANS(f_scara[AXIS_Y])) * L2;//当Y电机控制小臂相对于世界坐标系旋转角度时使用此公式
 
-    x2 = x1 *std::cos(cartesian_theta[AXIS_Z]/ARM_RAD2DEG);
-    y2 = x1 *std::sin(cartesian_theta[AXIS_Z]/ARM_RAD2DEG);
+    y_sin = sin(RADIANS(cartesian_theta[AXIS_X]) + RADIANS(cartesian_theta[AXIS_Y])) * L2;
+    y_cos = cos(RADIANS(cartesian_theta[AXIS_X]) + RADIANS(cartesian_theta[AXIS_Y])) * L2;
 
-    cartesian[AXIS_X]=x2;
-    cartesian[AXIS_Y]=y2;
-    cartesian[AXIS_Z]=y1;
+    cartesian[AXIS_X] = -x_cos - y_cos - SCARA_OFFSET_X;  //因为相对坐标是从X轴负半轴开始的，实际为负值，加上偏移量就变成真正的坐标
+    cartesian[AXIS_Y] = x_sin + y_sin - SCARA_OFFSET_Y;  //求得用户坐标系下Y值
+    cartesian[AXIS_Z] = (float)cartesian_theta[AXIS_Z];
 
     res_state = 0;//no error
 
@@ -133,7 +149,7 @@ uint8_t Dobot_Motion::calculate_forward(float *cartesian, const float *cartesian
 /// \param n
 /// \return
 ///
-float Dobot_Motion::get_StepsPerUnit(int n)
+float Scara_Motion::get_StepsPerUnit(int n)
 {
     float res = 88.88f;
     switch(n){
@@ -158,7 +174,7 @@ float Dobot_Motion::get_StepsPerUnit(int n)
 /// \brief 获取轴数
 /// \return
 ///
-int Dobot_Motion::get_Axis_count()
+int Scara_Motion::get_Axis_count()
 {
     return AXIS_N;
 }
@@ -166,7 +182,7 @@ int Dobot_Motion::get_Axis_count()
 ///
 /// \brief 复位
 ///
-void Dobot_Motion::Arm_motion_reset()
+void Scara_Motion::Arm_motion_reset()
 {
     ARM_Struct arm_position_init(AXIS_N);//笛卡尔坐标系为(0,0,0)的角度
 
@@ -189,7 +205,7 @@ void Dobot_Motion::Arm_motion_reset()
 /// \brief 获取初始正解坐标
 /// \return
 ///
-ARM_Struct Dobot_Motion::get_PositionInit()
+ARM_Struct Scara_Motion::get_PositionInit()
 {
     return *m_PositionInit;
 }
@@ -201,7 +217,7 @@ ARM_Struct Dobot_Motion::get_PositionInit()
 /// \param send_signal
 /// \return
 ///
-int Dobot_Motion::planner_BufferLine(const float * target, int userData, ARM_SendState *send_signal){
+int Scara_Motion::planner_BufferLine(const float * target, int userData, ARM_SendState *send_signal){
     //Q_UNUSED(userData);//后面再添加
 
     float unit_vec[AXIS_N], delta_mm;
@@ -211,21 +227,6 @@ int Dobot_Motion::planner_BufferLine(const float * target, int userData, ARM_Sen
     block_new->step_event_count = 0;
 
     memcpy(position_steps, m_sys_position, sizeof(m_sys_position));// sys_position (vector in steps.int32)
-
-    if(userData > Gcode_segment::RobotChange){//如果是切换机器人的G代码
-        //分别计算
-        for(int idx = 0;idx < AXIS_N;idx++){
-
-            block_new->Axis_steps[idx] = 0;
-            block_new->step_event_count = std::max(block_new->step_event_count,block_new->Axis_steps[idx]);
-        }
-        block_new->Mcode = userData;//赋值Mcode
-
-        m_Stepper_block_Q->enqueue(block_new);
-//             qDebug() << userData;
-        return Planner_OK;
-    }
-
     //正解校验
 //    float print_position[3];
 //    for(int i=0;i<3;i++){
@@ -314,9 +315,9 @@ int Dobot_Motion::planner_BufferLine(const float * target, int userData, ARM_Sen
 }
 
 ///
-/// \brief Dobot_Motion::loopRun
+/// \brief Scara_Motion::loopRun
 ///
-void Dobot_Motion::loopRun()
+void Scara_Motion::loopRun()
 {
     if( m_Stepper_control->step_count== 0){//需要获取新的block
         if(m_Stepper_block_Q->empty()){
@@ -350,8 +351,8 @@ void Dobot_Motion::loopRun()
             *(input_MotorStep_ptr+motor2_step) = m_Stepper_control->Axis_steps[AXIS_Y];
             *(input_MotorStep_ptr+motor3_step) = m_Stepper_control->Axis_steps[AXIS_Z];
 
-            int32_t steps_loopNum[Dobot_Motion::AXIS_N];
-            int32_t steps_remain[Dobot_Motion::AXIS_N];
+            int32_t steps_loopNum[Scara_Motion::AXIS_N];
+            int32_t steps_remain[Scara_Motion::AXIS_N];
             int32_t steps_limit = 3000;
             steps_loopNum[AXIS_X] = m_Stepper_control->Axis_steps[AXIS_X]/steps_limit;
             steps_remain[AXIS_X] = m_Stepper_control->Axis_steps[AXIS_X]%steps_limit;
@@ -431,9 +432,7 @@ void Dobot_Motion::loopRun()
         //                STEP_BIT_SetFalse(*(input_ptr+step_setting),1<<step_AutoRun_start);//设置自动运行
                     break;
                 default:
-                    if(m_Stepper_control->exec_block->Mcode < Gcode_segment::RobotChange){
-                         qDebug() << "Mcode:"<<m_Stepper_control->exec_block->Mcode;
-                    }
+                    qDebug() << "Mcode:"<<m_Stepper_control->exec_block->Mcode;
                     break;
                 }
 
@@ -459,7 +458,7 @@ void Dobot_Motion::loopRun()
 
 }
 
-void Dobot_Motion::Motor_Reset()
+void Scara_Motion::Motor_Reset()
 {
     //设置方向
     *(input_ptr+motor_dir) = 0;//dir

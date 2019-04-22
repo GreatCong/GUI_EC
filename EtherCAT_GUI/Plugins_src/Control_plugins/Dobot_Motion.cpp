@@ -2,9 +2,9 @@
 
 #include "GcodeParser.h"
 
-#define DEFAULT_X_STEPS_PER_MM 			88.89f//89.29//86.48f
-#define DEFAULT_Y_STEPS_PER_MM 			88.90f//88.90//89.29f
-#define DEFAULT_Z_STEPS_PER_MM 			89.00f//89.00//90.87f//86.48f
+#define DEFAULT_X_STEPS_PER_UNIT 			88.89f//89.29//86.48f
+#define DEFAULT_Y_STEPS_PER_UNIT 			88.90f//88.90//89.29f
+#define DEFAULT_Z_STEPS_PER_UNIT 			89.00f//89.00//90.87f//86.48f
 
 //原点的设置是三个步进电机的中心位置的交点
 //#define BIG_ARM_LENGTH 135				//	@大臂长度	135mm
@@ -23,6 +23,10 @@
 #define SMALL_ARM_LENGTH 170			//	@小臂长度	170mm
 #define HEAD_OFFSET   50.2				//	@头偏移	48.8mm
 #define CENCER_OFFSET 62				//	@中心偏移	62mm
+
+#define MANUAL_X_HOME_POS 90.0f
+#define MANUAL_Y_HOME_POS 0.0f
+#define MANUAL_Z_HOME_POS 0.0f
 
 //#define ARM_HIGH_OFFSET 110 // @ 原点到水平的高度110mm
 
@@ -134,13 +138,13 @@ float Dobot_Motion::get_StepsPerUnit(int n)
     float res = 88.88f;
     switch(n){
     case AXIS_X:
-        res = DEFAULT_X_STEPS_PER_MM;
+        res = DEFAULT_X_STEPS_PER_UNIT;
         break;
     case AXIS_Y:
-        res = DEFAULT_Y_STEPS_PER_MM;
+        res = DEFAULT_Y_STEPS_PER_UNIT;
         break;
     case AXIS_Z:
-        res = DEFAULT_Z_STEPS_PER_MM;
+        res = DEFAULT_Z_STEPS_PER_UNIT;
         break;
     default:
         break;
@@ -166,9 +170,9 @@ void Dobot_Motion::Arm_motion_reset()
 {
     ARM_Struct arm_position_init(AXIS_N);//笛卡尔坐标系为(0,0,0)的角度
 
-    arm_position_init.arm[AXIS_X] = 90;
-    arm_position_init.arm[AXIS_Y] = 0;
-    arm_position_init.arm[AXIS_Z] = 0;
+    arm_position_init.arm[AXIS_X] = MANUAL_X_HOME_POS;
+    arm_position_init.arm[AXIS_Y] = MANUAL_Y_HOME_POS;
+    arm_position_init.arm[AXIS_Z] = MANUAL_Z_HOME_POS;
 
     calculate_forward(m_PositionInit->arm,arm_position_init.arm);
     #if ARM_PEINT_DEBUG

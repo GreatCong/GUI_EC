@@ -77,7 +77,7 @@
             </font>
            </property>
            <property name="text">
-            <string>多机械臂EtherCAT应用</string>
+            <string>Scara机器人 EtherCAT应用</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
