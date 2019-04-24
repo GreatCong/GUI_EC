@@ -1,4 +1,4 @@
-﻿#include "Control_plugin.h"
+﻿#include "ControlTab_P.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -8,29 +8,24 @@
 #include <QKeyEvent>
 #include <QSettings>
 
-#if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8") ///< 最好加上这句，否则乱码
-#endif
-
 //用于解析G代码
 #define PROGRESSMINLINES 10000 //G代码文件的最大行数
 #define PROGRESSSTEP     1000
 
-Control_plugin::Control_plugin(QObject *parent) :
-    QObject(parent),EtherCAT_UserApp()
+ControlTab_P::ControlTab_P(QObject *parent) : QObject(parent)
 {
-    user_form_controlTab = new Form_ControlTab();
-    m_motorApp_callback = new My_MotorApp_Callback();
+   user_form_controlTab = new Form_ControlTab();
+   m_motorApp_callback = new My_MotorApp_Callback();
 
-    m_messageObj = new EtherCAT_Message;
+   m_messageObj = new EtherCAT_Message();
 
-    set_UIWidgetPtr(user_form_controlTab);
-    set_CallbackPtr(m_motorApp_callback);
-    set_MessageObj(m_messageObj);//如果需要响应消息
+   set_UIWidgetPtr(user_form_controlTab);
+   set_CallbackPtr(m_motorApp_callback);
+   set_MessageObj(m_messageObj);//如果需要响应消息
+
 }
 
-
-void Control_plugin::Init_Cores()
+void ControlTab_P::Init_Cores()
 {
     m_settingPath = "./config_User.ini";
     Load_setting(m_settingPath);//加载设置
@@ -43,14 +38,11 @@ void Control_plugin::Init_Cores()
     connect(user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b),SIGNAL(clicked(bool)),this,SLOT(Control_SendGcode_clicked()));
     connect(user_form_controlTab->get_CheckBoxPtr(Form_ControlTab::check_isThetaDis_c),SIGNAL(stateChanged(int)),this,SLOT(ControlTab_checkThetaDis_stateChange(int)));
 
-    connect(user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com),SIGNAL(currentIndexChanged(int)),SLOT(ControlTab_MasterIndex_currentIndexChanged(int)));
-    connect(user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com),SIGNAL(highlighted(int)),SLOT(ControlTab_MasterIndex_highlighted(int)));
-
-    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X]));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(tr("280.799"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setPlaceholderText(tr("X轴"));
-    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y]));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(tr("0"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setPlaceholderText(tr("Y轴"));
-    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z]));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(tr("155"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setPlaceholderText(tr("Z轴"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_Speed_e)->setText(tr("1000"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_Speed_e)->setPlaceholderText(tr("速度"));
@@ -71,28 +63,28 @@ void Control_plugin::Init_Cores()
     connect(user_form_controlTab,SIGNAL(Key_EventSignal(QKeyEvent*)),this,SLOT(ControlTab_keyPressEvent(QKeyEvent*)));
 }
 
-void Control_plugin::Destroy_Cores()
+void ControlTab_P::Destroy_Cores()
 {
    Save_setting(m_settingPath);//保存设置
 }
 
 /*********************** Operation *************************/
-void Control_plugin::Set_StatusMessage(QString message, int interval)
+void ControlTab_P::Set_StatusMessage(QString message, int interval)
 {
-    _EC_message->Set_StatusMessage(message,interval);//发出自定义信号
+    emit _EC_message->StatusMessage_change(message,interval);//发出自定义信号
 }
 
-void Control_plugin::Set_BottomMessage(QString message)
+void ControlTab_P::Set_BottomMessage(QString message)
 {
-    _EC_message->Set_BottomMessage(message);//发出自定义信号
+    emit _EC_message->BottomMessage_change(message);//发出自定义信号
 }
 
-void Control_plugin::Set_MasterStop()
+void ControlTab_P::Set_MasterStop()
 {
-    _EC_message->Set_MasterStop();//发出自定义信号
+    emit _EC_message->MasterStop_Signal();//发出自定义信号
 }
 
-int Control_plugin::Load_setting(const QString &path){
+int ControlTab_P::Load_setting(const QString &path){
 
 //    QFile file("./config.ini");
     QFile file(path);
@@ -101,7 +93,7 @@ int Control_plugin::Load_setting(const QString &path){
 
 //        QString str_3=setting.value("Login/account").toString();
 //        qDebug() << str_3;
-        QString setting_GcodePath = setting.value("Control_Plugin/GcodePath").toString();
+        QString setting_GcodePath = setting.value("Path/GcodePath").toString();
 //        QString setting_pluginDir =  setting.value("Path/PluginPath").toString();
         QDir dir;
         dir= QDir(setting_GcodePath);
@@ -133,11 +125,11 @@ int Control_plugin::Load_setting(const QString &path){
     return 0;
 }
 
-int Control_plugin::Save_setting(const QString &path){
+int ControlTab_P::Save_setting(const QString &path){
 
    QSettings setting(path,QSettings::IniFormat);//读配置文件
 
-   setting.beginGroup(tr("Control_Plugin"));
+   setting.beginGroup(tr("Path"));
    setting.setValue("GcodePath",m_GcodePath);//设置key和value，也就是参数和值
 //   setting.setValue("PluginPath",m_pluginDir);
 //   setting.setValue("remeber",true);
@@ -146,7 +138,7 @@ int Control_plugin::Save_setting(const QString &path){
     return 0;
 }
 
-int Control_plugin::Gcode_load(QString &fileName){
+int ControlTab_P::Gcode_load(QString &fileName){
     if(!fileName.isEmpty()){
         //m_pluginDir = dir;
   //        qDebug() << m_pluginDir;
@@ -154,7 +146,7 @@ int Control_plugin::Gcode_load(QString &fileName){
         QFile file(fileName);
 
         if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::critical(get_UIWidgetPtr(), tr("Control_plugin"), tr("Can't open file:\n") + fileName);
+            QMessageBox::critical(get_UIWidgetPtr(), tr("ControlTab_P"), tr("Can't open file:\n") + fileName);
             return -1;
         }
 
@@ -302,7 +294,7 @@ int Control_plugin::Gcode_load(QString &fileName){
 
 /************  Slots *******************/
 
-void Control_plugin::Control_OpenGcode_clicked(){
+void ControlTab_P::Control_OpenGcode_clicked(){
 //    if(user_form_generalTab->master->Master_getSlaveCount()>0){
 //       Master_stop();//防止界面卡死
 //       StatusMessage_change(tr("Stop Master..."),3000);
@@ -332,7 +324,7 @@ void Control_plugin::Control_OpenGcode_clicked(){
     Gcode_load(m_GcodePath_full);
 }
 
-void Control_plugin::Control_ReloadGcode_clicked(){
+void ControlTab_P::Control_ReloadGcode_clicked(){
 //    if(user_form_generalTab->master->Master_getSlaveCount()>0){
 //       Master_stop();//防止界面卡死
 //       StatusMessage_change(tr("Stop Master..."),3000);
@@ -349,12 +341,12 @@ void Control_plugin::Control_ReloadGcode_clicked(){
     }
 }
 
-void Control_plugin::Control_SendGcode_clicked(){
+void ControlTab_P::Control_SendGcode_clicked(){
    GcodeSendThread->start();//开始解析G代码线程
-   m_motorApp_callback->set_RenewST_Ready(true);
+   m_motorApp_callback->m_RenewST_ready = true;
 }
 
-void Control_plugin::MotorCallback_GcodeLineChange(int line){
+void ControlTab_P::MotorCallback_GcodeLineChange(int line){
 //    qDebug() << line;
     //实现滚动效果
     user_form_controlTab->get_TableGcode()->selectRow(line);
@@ -367,7 +359,7 @@ void Control_plugin::MotorCallback_GcodeLineChange(int line){
 
 }
 
-void Control_plugin::MotorCallback_GcodePositionChange(QVector3D pos){
+void ControlTab_P::MotorCallback_GcodePositionChange(QVector3D pos){
     if(!controlTab_isTheta_display){
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_X,pos.x());
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Y,pos.y());
@@ -375,7 +367,7 @@ void Control_plugin::MotorCallback_GcodePositionChange(QVector3D pos){
     }
 }
 
-void Control_plugin::MotorCallback_GcodeThetaChange(QVector3D theta){
+void ControlTab_P::MotorCallback_GcodeThetaChange(QVector3D theta){
     if(controlTab_isTheta_display){
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_X,theta.x());
         user_form_controlTab->set_LCDnumber_Display(Form_ControlTab::Axis_Y,theta.y());
@@ -383,11 +375,11 @@ void Control_plugin::MotorCallback_GcodeThetaChange(QVector3D theta){
     }
 }
 
-void Control_plugin::ControlTab_checkThetaDis_stateChange(int arg){
+void ControlTab_P::ControlTab_checkThetaDis_stateChange(int arg){
     controlTab_isTheta_display = arg;
 }
 
-void Control_plugin::ControlTab_jog_clicked(int button){
+void ControlTab_P::ControlTab_jog_clicked(int button){
     QVector3D coor_temp;
 
     switch(button){
@@ -417,13 +409,13 @@ void Control_plugin::ControlTab_jog_clicked(int button){
         user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(coor_temp.z()));
          break;
         case Form_ControlTab::Jog_Home_b:
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(280.80));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(0));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(155));
         break;
         case Form_ControlTab::Jog_Halt_b:
         memset(m_motorApp_callback->loop_count,0,sizeof(m_motorApp_callback->loop_count));//stop
-        m_motorApp_callback->Control_QueueClear();
+        m_motorApp_callback->m_Stepper_block_Q->clear();
         m_motorApp_callback->m_sys_reset = true;
         return;
 
@@ -432,70 +424,33 @@ void Control_plugin::ControlTab_jog_clicked(int button){
             break;
     }
 
-    m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_X] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat();//300;
-    m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Y] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat();//200;
-    m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Z] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat();//100;
-    m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test->arm,Gcode_segment::No_Mcode,0);
+    m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat();//300;
+    m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat();//200;
+    m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat();//100;
+    m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test.arm,Gcode_segment::No_Mcode);
     m_motorApp_callback->m_sys_reset = false;
 }
 
-void Control_plugin::ControlTab_MasterIndex_currentIndexChanged(int index)
-{
-   m_motorApp_callback->m_slave_index = index;
-//   qDebug() << index;
-}
-
-void Control_plugin::ControlTab_MasterIndex_highlighted(int index)
-{
-    Q_UNUSED(index);
-
-    static int slave_count_static = 0;
-
-    int slave_count = m_motorApp_callback->Master_getSlaveCount();
-
-    if(slave_count_static == slave_count) return;//让currentIndexChanged也可以工作
-    else{
-        slave_count_static = slave_count;
-        user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com)->clear();
-    //    qDebug() << slave_count;
-
-        if(slave_count == 0){
-          user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com)->addItem("0");
-          return;
-        }
-
-        for(int i=0;i<slave_count;i++){
-            user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com)->addItem(QString::number(i));
-        }
-    }
-
-
-}
-
-void Control_plugin::MotorCallback_MasterQuit_sig(bool isQuit){
+void ControlTab_P::MotorCallback_MasterQuit_sig(bool isQuit){
     if(isQuit){
         GcodeSendThread->quit();
         GcodeSendThread->wait();
         user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_jog_g)->setEnabled(false);
         user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b)->setEnabled(false);
         m_motorApp_callback->Gcode_ReleaseAddress();
-
-        user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_Master_g)->setEnabled(true);//从站选择使能
     }
     else{
         user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_jog_g)->setEnabled(true);
         user_form_controlTab->get_ButtonGcode(Form_ControlTab::Gcode_sendFile_b)->setEnabled(true);
         m_motorApp_callback->Gcode_setAddress(m_GcodeSegment_Q);
 
-        user_form_controlTab->get_GroupPtr(Form_ControlTab::Groups_Master_g)->setEnabled(false);//从站选择失能
-
         get_UIWidgetPtr()->setFocus();//如果用键盘测试的话，需要设置焦点
     }
 
 }
 
-void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
-    if(m_motorApp_callback->is_InputPtr_Release()){
+void ControlTab_P::ControlTab_keyPressEvent(QKeyEvent *event){
+    if(m_motorApp_callback->input_ptr == NULL){
         return;
     }
 
@@ -504,23 +459,23 @@ void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
     switch(event->key()){
     case Qt::Key_Space:
         memset(m_motorApp_callback->loop_count,0,sizeof(m_motorApp_callback->loop_count));//stop
-        m_motorApp_callback->Control_QueueClear();
+        m_motorApp_callback->m_Stepper_block_Q->clear();
         m_motorApp_callback->m_sys_reset = true;
         break;
     case Qt::Key_Control:
-        m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_X] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat();//300;
-        m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Y] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat();//200;
-        m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Z] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat();//100;
-        m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test->arm,Gcode_segment::No_Mcode,0);
+        m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->text().toFloat();//300;
+        m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat();//200;
+        m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->text().toFloat();//100;
+        m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test.arm,Gcode_segment::No_Mcode);
         m_motorApp_callback->m_sys_reset = false;
 //        m_motorApp_callback->start();
         break;
      case Qt::Key_R:
-            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_X] = m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X];
-            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Y] = m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y];
-            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Z] = m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z];
+            m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = 280.80;
+            m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = 0;
+            m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = 155;
 //            m_motorApp_callback->start();
-            m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test->arm,Gcode_segment::No_Mcode,0);
+            m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test.arm,Gcode_segment::No_Mcode);
             m_motorApp_callback->m_sys_reset = false;
 
         break;
@@ -530,10 +485,10 @@ void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
 //                QVector3D data = m_GcodeSegment_Q->dequeue().data_xyz;
 //                data_last = data;
 //                qDebug() << data;
-//                m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_X] = data.x();
-//                m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Y] = data.y();
-//                m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Z] = data.z();
-//                m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test->arm,0);
+//                m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_X] = data.x();
+//                m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Y] = data.y();
+//                m_motorApp_callback->m_ARM_Motion_test.arm[My_MotorApp_Callback::AXIS_Z] = data.z();
+//                m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test.arm,0);
 //            }
 //            m_motorApp_callback->m_sys_reset = false;
 //            m_motorApp_callback->start();
@@ -542,12 +497,12 @@ void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
             GcodeSendThread->start();
         break;
    case Qt::Key_Q:
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(tr("280.799"));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(tr("0"));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(tr("155"));
         break;
     case Qt::Key_A:
-        m_motorApp_callback->set_RenewST_Ready(true);
+        m_motorApp_callback->m_RenewST_ready = true;
         break;
     case Qt::Key_Left://左
         coor_temp.setY(user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->text().toFloat()-user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_step_e)->text().toInt());
@@ -585,9 +540,3 @@ void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
 }
 
 /************  Slots End ***************/
-
-
-
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(User_plugins, UserApp_plugin)
-#endif // QT_VERSION < 0x050000

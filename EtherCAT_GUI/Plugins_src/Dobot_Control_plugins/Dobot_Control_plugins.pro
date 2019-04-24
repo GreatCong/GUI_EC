@@ -10,7 +10,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Control_plugins
+TARGET = Dobot_Control_plugins
 TEMPLATE = lib
 CONFIG += plugin
 
@@ -33,8 +33,7 @@ unix:TARGET=$$join(TARGET,,,_debug)
 win32:TARGET=$$join(TARGET,,,_d)
 }
 
-DISTFILES += Control_plugins.json \
-    Control_plugins.json
+DISTFILES += Dobot_Control_plugins.json
 
 unix {
     target.path = /usr/lib
@@ -54,7 +53,7 @@ HEADERS += \
     Commmon/EtherCAT_Message.h \
     Commmon/EtherCAT_UserApp.h \
     ARM_Motion.h \
-    CNC_Motion.h
+    Dobot_Motion.h
 
 SOURCES += \
     Control_plugin.cpp \
@@ -65,7 +64,7 @@ SOURCES += \
     My_MotorApp_Callback.cpp \
     Commmon/EtherCAT_Message.cpp \
     ARM_Motionn.cpp \
-    CNC_Motion.cpp
+    Dobot_Motion.cpp
 
 RESOURCES += \
     res_icons.qrc

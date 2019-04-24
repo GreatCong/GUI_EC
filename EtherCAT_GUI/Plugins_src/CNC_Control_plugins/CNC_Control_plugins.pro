@@ -10,7 +10,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Control_plugins
+TARGET = CNC_Control_plugins
 TEMPLATE = lib
 CONFIG += plugin
 
@@ -33,8 +33,7 @@ unix:TARGET=$$join(TARGET,,,_debug)
 win32:TARGET=$$join(TARGET,,,_d)
 }
 
-DISTFILES += Control_plugins.json \
-    Control_plugins.json
+DISTFILES += CNC_Control_plugins.json
 
 unix {
     target.path = /usr/lib

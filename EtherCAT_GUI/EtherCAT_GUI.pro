@@ -10,4 +10,6 @@ SUBDIRS += Plugins_src/User_plugins \
            Plugins_src/Measure_plugins \
            Plugins_src/DRE2008OS_plugins \
            Plugins_src/DoubleControl_plugins \
-           Plugins_src/Scara_Control_plugins
+           Plugins_src/Scara_Control_plugins \
+           Plugins_src/Dobot_Control_plugins \
+           Plugins_src/CNC_Control_plugins

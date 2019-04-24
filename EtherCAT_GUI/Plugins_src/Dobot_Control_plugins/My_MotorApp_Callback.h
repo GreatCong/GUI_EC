@@ -7,7 +7,7 @@
 #include <QThread>
 
 #include "GcodeParser.h"
-#include "CNC_Motion.h"
+#include "Dobot_Motion.h"
 
 
 class My_MotorApp_Callback : public QObject,public Ethercat_Callback
@@ -28,7 +28,7 @@ public:
 //    const int16_t* output_ptr;
 //    uint16_t* input_ptr;
 //    uint32_t* input_MotorStep_ptr;
-    int loop_count[CNC_Motion::AXIS_N];
+    int loop_count[Dobot_Motion::AXIS_N];
     bool m_sys_reset;
 
     int m_slave_index;
@@ -90,7 +90,7 @@ public:
     bool is_InputPtr_Release();
 private:
 
-    CNC_Motion m_CNCMotion;//Dobot的正反解
+    Dobot_Motion m_DobotMotion;//Dobot的正反解
 
     void Motor_Reset();
 //    int Planner_BufferLine(float *target, int userData);
@@ -98,7 +98,7 @@ private:
     bool isRun;
     int m_robot_index;//机器人的编号
     int m_robot_LastIndex;//机器人的编号
-    void GcodeSendThread_Func(CNC_Motion &dobotMotion);
+    void GcodeSendThread_Func(Dobot_Motion &dobotMotion);
 public slots:
     void GcodeSendThread_run();
 signals:

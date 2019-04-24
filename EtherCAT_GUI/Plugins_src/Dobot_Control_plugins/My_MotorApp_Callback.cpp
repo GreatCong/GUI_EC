@@ -11,8 +11,8 @@ My_MotorApp_Callback::My_MotorApp_Callback(QObject *parent): QObject(parent),Eth
     memset(loop_count,0,sizeof(loop_count));
     m_sys_reset = false;
 
-    m_ARM_Motion_test = new ARM_Struct(CNC_Motion::AXIS_N);
-    m_PositionInit = new ARM_Struct(CNC_Motion::AXIS_N);//笛卡尔坐标系为(0,0,0)的角度
+    m_ARM_Motion_test = new ARM_Struct(Dobot_Motion::AXIS_N);
+    m_PositionInit = new ARM_Struct(Dobot_Motion::AXIS_N);//笛卡尔坐标系为(0,0,0)的角度
 
     Arm_motion_reset();
     isRun = true;
@@ -31,7 +31,7 @@ My_MotorApp_Callback::~My_MotorApp_Callback()
     memset(loop_count,0,sizeof(loop_count));
 //    memset(&m_Stepper_control,0,sizeof(m_Stepper_control));
     m_sys_reset = false;
-//    memset(&m_CNCMotion.m_sys_position,0,sizeof(m_CNCMotion.m_sys_position));
+//    memset(&m_DobotMotion.m_sys_position,0,sizeof(m_DobotMotion.m_sys_position));
     isRun = false;
 //    this->wait();
 //    this->quit();//停止线程
@@ -186,12 +186,12 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
 //    *(input_ptr+motor2_step) = 0;
 //    *(input_ptr+motor3_step) = 1;
 
-    m_CNCMotion.m_Stepper_control->step_count = *(m_CNCMotion.get_OutputPtr()+motor_MSG);
+    m_DobotMotion.m_Stepper_control->step_count = *(m_DobotMotion.get_OutputPtr()+motor_MSG);
     if(m_sys_reset){//如果用户进行了复位
-       m_CNCMotion.m_Stepper_control->step_count=0;
-       STEP_BIT_SetTrue(*(m_CNCMotion.get_IutputPtr()+step_setting),1<<step_AutoRun_stop);//从站中stop判断在前
+       m_DobotMotion.m_Stepper_control->step_count=0;
+       STEP_BIT_SetTrue(*(m_DobotMotion.get_IutputPtr()+step_setting),1<<step_AutoRun_stop);//从站中stop判断在前
        Motor_Reset();
-       *(m_CNCMotion.get_Iutput_MotorStepPtr()+AXIS_4) = 0;
+       *(m_DobotMotion.get_Iutput_MotorStepPtr()+AXIS_4) = 0;
     }   
 
     //BUG:如果步数比较小,有时候无法自动完成激励
@@ -199,28 +199,28 @@ void My_MotorApp_Callback::Master_AppLoop_callback()
 //        m_RenewST_ready = true;
 //        m_RenewST_init = false;
 //    }
-    if(m_CNCMotion.m_RenewST_init){//给一个循环运动的激励
-        if((*(m_CNCMotion.get_OutputPtr()+error_MSG)==2) || m_CNCMotion.m_McodeFlag){
-            m_CNCMotion.m_RenewST_ready = true;
-            m_CNCMotion.m_RenewST_init = false;
-            m_CNCMotion.m_McodeFlag = false;
+    if(m_DobotMotion.m_RenewST_init){//给一个循环运动的激励
+        if((*(m_DobotMotion.get_OutputPtr()+error_MSG)==2) || m_DobotMotion.m_McodeFlag){
+            m_DobotMotion.m_RenewST_ready = true;
+            m_DobotMotion.m_RenewST_init = false;
+            m_DobotMotion.m_McodeFlag = false;
         }
     }
 
 
-//    if( m_CNCMotion.m_Stepper_control->step_count== 0){//需要获取新的block
-//        if(m_CNCMotion.m_Stepper_block_Q->empty()){
+//    if( m_DobotMotion.m_Stepper_control->step_count== 0){//需要获取新的block
+//        if(m_DobotMotion.m_Stepper_block_Q->empty()){
 //            return ;
 //        }
 //        else{
-//            m_CNCMotion.loopRun();
+//            m_DobotMotion.loopRun();
 //        }
 //    }
 //    else{
 //        Motor_Reset();
-//     *(m_CNCMotion.get_IutputPtr()+step_setting) = 1;//只是使能，去掉自动运行的标志
+//     *(m_DobotMotion.get_IutputPtr()+step_setting) = 1;//只是使能，去掉自动运行的标志
 //    }
-    m_CNCMotion.loopRun();//根据新的block进行循环运动
+    m_DobotMotion.loopRun();//根据新的block进行循环运动
 
 
 
@@ -254,13 +254,13 @@ void My_MotorApp_Callback::Master_AppStart_callback()
     input_MotorStep_ptr = (uint32_t*)(m_Master_addressBase+m_Master_addressList[m_slave_index].outputs_offset+0x06);    
 
     //设置dobot的IO地址
-    m_CNCMotion.set_OutputPtr(output_ptr);
-    m_CNCMotion.set_IutputPtr(input_ptr);
-    m_CNCMotion.set_Iutput_MotorStepPtr(input_MotorStep_ptr);
+    m_DobotMotion.set_OutputPtr(output_ptr);
+    m_DobotMotion.set_IutputPtr(input_ptr);
+    m_DobotMotion.set_Iutput_MotorStepPtr(input_MotorStep_ptr);
 
     //设定一个初始值,否则Ethercat会将循环的数值传递到从站
    Motor_Reset();
-   *(m_CNCMotion.get_Iutput_MotorStepPtr()+AXIS_4) = 0;
+   *(m_DobotMotion.get_Iutput_MotorStepPtr()+AXIS_4) = 0;
 //   xx=0;
    isRun = true;
 //   if(m_GcodeSegment_Q->empty()){
@@ -285,7 +285,7 @@ void My_MotorApp_Callback::Master_AppStop_callback()
 //  this->wait();
 //  this->quit();//停止线程
   Control_QueueClear();
-  m_CNCMotion.m_Stepper_control->step_count = 0;
+  m_DobotMotion.m_Stepper_control->step_count = 0;
 //  memset(&m_sys_position,0,sizeof(m_sys_position));
   Arm_motion_reset();//不能全部置0
 
@@ -310,7 +310,7 @@ int My_MotorApp_Callback::Master_setAdressBase(char *address)
 void My_MotorApp_Callback::Master_ReleaseAddress()
 {
     m_Master_addressBase = NULL;
-    m_CNCMotion.release_IO_ptr();
+    m_DobotMotion.release_IO_ptr();
 }
 
 ///
@@ -341,7 +341,7 @@ void My_MotorApp_Callback::Motor_Reset(){
 //    *(input_MotorStep_ptr+motor1_step) = 0;//step1
 //    *(input_MotorStep_ptr+motor2_step) = 0;//step2
 //    *(input_MotorStep_ptr+motor3_step) = 0;//step3
-    m_CNCMotion.Motor_Reset();
+    m_DobotMotion.Motor_Reset();
 }
 
 ///
@@ -358,8 +358,8 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData,int rob
     switch(robot_index){
     case 0:
     case 1:
-         sendState= new ARM_SendState(CNC_Motion::AXIS_N);
-        res = m_CNCMotion.planner_BufferLine(target,userData,sendState);
+         sendState= new ARM_SendState(Dobot_Motion::AXIS_N);
+        res = m_DobotMotion.planner_BufferLine(target,userData,sendState);
 
         if(sendState->sendPositionOK){
             QVector3D position_send = QVector3D(sendState->position_send->arm[0],sendState->position_send->arm[1],sendState->position_send->arm[2]);
@@ -372,8 +372,8 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData,int rob
         }
         break;
     case 2:
-//        sendState= new ARM_SendState(CNC_Motion::AXIS_N);
-//        res = m_CNCMotion1.planner_BufferLine(target,userData,sendState);
+//        sendState= new ARM_SendState(Dobot_Motion::AXIS_N);
+//        res = m_DobotMotion1.planner_BufferLine(target,userData,sendState);
         break;
     case 3:
         break;
@@ -388,8 +388,8 @@ int My_MotorApp_Callback::Planner_BufferLine(float * target,int userData,int rob
 /// \brief My_MotorApp_Callback::Arm_motion_reset
 ///
 void My_MotorApp_Callback::Arm_motion_reset(){
-    m_CNCMotion.Arm_motion_reset();
-    *m_PositionInit = m_CNCMotion.get_PositionInit();
+    m_DobotMotion.Arm_motion_reset();
+    *m_PositionInit = m_DobotMotion.get_PositionInit();
 }
 
 ///
@@ -397,7 +397,7 @@ void My_MotorApp_Callback::Arm_motion_reset(){
 ///
 void My_MotorApp_Callback::Control_QueueClear()
 {
-    m_CNCMotion.m_Stepper_block_Q->clear();
+    m_DobotMotion.m_Stepper_block_Q->clear();
 }
 
 ///
@@ -405,7 +405,7 @@ void My_MotorApp_Callback::Control_QueueClear()
 /// \param isReady
 ///
 void My_MotorApp_Callback::set_RenewST_Ready(bool isReady){
-    m_CNCMotion.m_RenewST_ready = isReady;
+    m_DobotMotion.m_RenewST_ready = isReady;
 }
 
 ///
@@ -414,7 +414,7 @@ void My_MotorApp_Callback::set_RenewST_Ready(bool isReady){
 ///
 bool My_MotorApp_Callback::is_InputPtr_Release()
 {
-    if(m_CNCMotion.get_IutputPtr() == NULL){
+    if(m_DobotMotion.get_IutputPtr() == NULL){
         return true;
     }
     else{
@@ -426,7 +426,7 @@ bool My_MotorApp_Callback::is_InputPtr_Release()
 /// \brief My_MotorApp_Callback::GcodeSendThread_Func
 /// \param dobotMotion
 ///
-void My_MotorApp_Callback::GcodeSendThread_Func(CNC_Motion &dobotMotion){
+void My_MotorApp_Callback::GcodeSendThread_Func(Dobot_Motion &dobotMotion){
     if(dobotMotion.m_Stepper_control->step_count == 0){//需要获取新的block
         if(dobotMotion.m_Stepper_block_Q->empty() && dobotMotion.m_RenewST_ready){
              dobotMotion.m_RenewST_ready = false;
@@ -470,7 +470,7 @@ void My_MotorApp_Callback::GcodeSendThread_Func(CNC_Motion &dobotMotion){
 ///
 void My_MotorApp_Callback::GcodeSendThread_run(){
     while(isRun){
-        GcodeSendThread_Func(m_CNCMotion);
+        GcodeSendThread_Func(m_DobotMotion);
         QThread::msleep(5);
     }
 //    Planner_BufferLine(m_ARM_Motion_test.arm,0);

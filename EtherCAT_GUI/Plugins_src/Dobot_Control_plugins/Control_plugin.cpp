@@ -46,11 +46,11 @@ void Control_plugin::Init_Cores()
     connect(user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com),SIGNAL(currentIndexChanged(int)),SLOT(ControlTab_MasterIndex_currentIndexChanged(int)));
     connect(user_form_controlTab->get_ComboBoxPtr(Form_ControlTab::comboBox_SlaveIndex_com),SIGNAL(highlighted(int)),SLOT(ControlTab_MasterIndex_highlighted(int)));
 
-    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X]));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_X]));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setPlaceholderText(tr("X轴"));
-    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y]));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Y]));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setPlaceholderText(tr("Y轴"));
-    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z]));
+    user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Z]));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setPlaceholderText(tr("Z轴"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_Speed_e)->setText(tr("1000"));
     user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_Speed_e)->setPlaceholderText(tr("速度"));
@@ -417,9 +417,9 @@ void Control_plugin::ControlTab_jog_clicked(int button){
         user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(coor_temp.z()));
          break;
         case Form_ControlTab::Jog_Home_b:
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_X]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Y]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Z]));
         break;
         case Form_ControlTab::Jog_Halt_b:
         memset(m_motorApp_callback->loop_count,0,sizeof(m_motorApp_callback->loop_count));//stop
@@ -516,9 +516,9 @@ void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
 //        m_motorApp_callback->start();
         break;
      case Qt::Key_R:
-            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_X] = m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X];
-            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Y] = m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y];
-            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Z] = m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z];
+            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_X] = m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_X];
+            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Y] = m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Y];
+            m_motorApp_callback->m_ARM_Motion_test->arm[My_MotorApp_Callback::AXIS_Z] = m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Z];
 //            m_motorApp_callback->start();
             m_motorApp_callback->Planner_BufferLine(m_motorApp_callback->m_ARM_Motion_test->arm,Gcode_segment::No_Mcode,0);
             m_motorApp_callback->m_sys_reset = false;
@@ -542,9 +542,9 @@ void Control_plugin::ControlTab_keyPressEvent(QKeyEvent *event){
             GcodeSendThread->start();
         break;
    case Qt::Key_Q:
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_X]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Y]));
-        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[CNC_Motion::AXIS_Z]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosX_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_X]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosY_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Y]));
+        user_form_controlTab->get_LineEditGcode(Form_ControlTab::Jog_PosZ_e)->setText(QString("%1").arg(m_motorApp_callback->m_PositionInit->arm[Dobot_Motion::AXIS_Z]));
         break;
     case Qt::Key_A:
         m_motorApp_callback->set_RenewST_Ready(true);
