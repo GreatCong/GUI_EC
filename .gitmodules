@@ -1,0 +1,3 @@
+[submodule "EtherCAT_GUI/Plugins_src"]
+	path = EtherCAT_GUI/Plugins_src
+	url = ../GUI_EC_PluginSrc
