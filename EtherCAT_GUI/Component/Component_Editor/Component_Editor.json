@@ -1,0 +1,10 @@
+﻿{
+    "Keys" : [ 538538538],
+    "author" : "liucongjun",
+    "date" : "2019/10/28",
+    "name" : "Component_Editor",
+    "version" : "1.1.0",
+    "type" : "Component",
+    "description" : "Code Editor",
+    "dependencies" : ["DRE_Master","VS2015_lib"]
+}

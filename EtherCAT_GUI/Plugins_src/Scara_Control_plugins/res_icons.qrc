@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/Controls">
-        <file>Resource/Control/Dir_Down.png</file>
-        <file>Resource/Control/Dir_Left.png</file>
-        <file>Resource/Control/Dir_Right.png</file>
-        <file>Resource/Control/Dir_Up.png</file>
-    </qresource>
-</RCC>

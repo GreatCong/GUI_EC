@@ -1,9 +1,0 @@
-﻿{
-    "Keys" : [ 123123123],
-    "author" : "liucongjun",
-    "date" : "2019/04/15",
-    "name" : "Control_Plugin",
-    "version" : "1.2.0",
-    "type" : "Plugin",
-    "dependencies" : ["DRE_Master"]
-}

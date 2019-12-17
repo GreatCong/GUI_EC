@@ -1,9 +1,0 @@
-﻿{
-    "Keys" : [ 123123123],
-    "author" : "liucongjun",
-    "date" : "2019/04/18",
-    "name" : "DoubleControl_plugin",
-    "version" : "1.0.1",
-    "type" : "Plugin",
-    "dependencies" : ["DRE_Master"]
-}
